@@ -1,0 +1,12 @@
+{
+    "name": "formation_dce/fomation_dce",
+    "require": {
+        "mobiledetect/mobiledetectlib": "^2.8"
+    },
+    "authors": [
+        {
+            "name": "Artus",
+            "email": "a.vuatrin@yahoo.fr"
+        }
+    ]
+}
