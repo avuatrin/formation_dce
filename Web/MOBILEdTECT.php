@@ -1,7 +1,7 @@
 <?php
 	    // Include and instantiate the class.
 
-    require_once '../vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php';
+    require "../lib/vendor/autoload.php";
     $detect = new Mobile_Detect;
     // Any mobile device (phones or tablets).
     if ( $detect->isMobile() ) {
@@ -57,4 +57,4 @@
     $detect->version('iPhone') // 3.1 (float)
     $detect->version('Android'); // 2.1 (float)
     $detect->version('Opera Mini'); // 5.0 (float)
-    // [...]
+    // [...]*/
