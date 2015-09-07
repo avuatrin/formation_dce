@@ -1,79 +1,84 @@
 <?php
-namespace App\Frontend\Modules\News;
+namespace Model;
  
-use \OCFram\BackController;
-use \OCFram\HTTPRequest;
-use \Entity\Comment;
+use \Entity\News;
  
-class NewsController extends BackController
+class NewsManagerPDO extends NewsManager
 {
-  public function executeIndex(HTTPRequest $request)
+  protected function add(News $news)
   {
-    $nombreNews = $this->app->config()->get('nombre_news');
-    $nombreCaracteres = $this->app->config()->get('nombre_caracteres');
+    $requete = $this->dao->prepare('INSERT INTO news SET auteur = :auteur, titre = :titre, contenu = :contenu, dateAjout = NOW(), dateModif = NOW()');
  
-    // On ajoute une définition pour le titre.
-    $this->page->addVar('title', 'Liste des '.$nombreNews.' dernières news');
+    $requete->bindValue(':titre', $news->titre());
+    $requete->bindValue(':auteur', $news->auteur());
+    $requete->bindValue(':contenu', $news->contenu());
  
-    // On récupère le manager des news.
-    $manager = $this->managers->getManagerOf('News');
+    $requete->execute();
+  }
  
-    $listeNews = $manager->getList(0, $nombreNews);
+  public function count()
+  {
+    return $this->dao->query('SELECT COUNT(*) FROM news')->fetchColumn();
+  }
+ 
+  public function delete($id)
+  {
+    $this->dao->exec('DELETE FROM news WHERE id = '.(int) $id);
+  }
+ 
+  public function getList($debut = -1, $limite = -1)
+  {
+    $sql = 'SELECT id, auteur, titre, contenu, dateAjout, dateModif FROM news ORDER BY id DESC';
+ 
+    if ($debut != -1 || $limite != -1)
+    {
+      $sql .= ' LIMIT '.(int) $limite.' OFFSET '.(int) $debut;
+    }
+ 
+    $requete = $this->dao->query($sql);
+    $requete->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, '\Entity\News');
+ 
+    $listeNews = $requete->fetchAll();
  
     foreach ($listeNews as $news)
     {
-      if (strlen($news->contenu()) > $nombreCaracteres)
-      {
-        $debut = substr($news->contenu(), 0, $nombreCaracteres);
-        $debut = substr($debut, 0, strrpos($debut, ' ')) . '...';
- 
-        $news->setContenu($debut);
-      }
+      $news->setDateAjout(new \DateTime($news->dateAjout()));
+      $news->setDateModif(new \DateTime($news->dateModif()));
     }
  
-    // On ajoute la variable $listeNews à la vue.
-    $this->page->addVar('listeNews', $listeNews);
+    $requete->closeCursor();
+ 
+    return $listeNews;
   }
  
-  public function executeShow(HTTPRequest $request)
+  public function getUnique($id)
   {
-    $news = $this->managers->getManagerOf('News')->getUnique($request->getData('id'));
+    $requete = $this->dao->prepare('SELECT id, auteur, titre, contenu, dateAjout, dateModif FROM news WHERE id = :id');
+    $requete->bindValue(':id', (int) $id, \PDO::PARAM_INT);
+    $requete->execute();
  
-    if (empty($news))
+    $requete->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, '\Entity\News');
+ 
+    if ($news = $requete->fetch())
     {
-      $this->app->httpResponse()->redirect404();
+      $news->setDateAjout(new \DateTime($news->dateAjout()));
+      $news->setDateModif(new \DateTime($news->dateModif()));
+ 
+      return $news;
     }
  
-    $this->page->addVar('title', $news->titre());
-    $this->page->addVar('news', $news);
-    $this->page->addVar('comments', $this->managers->getManagerOf('Comments')->getListOf($news->id()));
+    return null;
   }
  
-  public function executeInsertComment(HTTPRequest $request)
+  protected function modify(News $news)
   {
-    $this->page->addVar('title', 'Ajout d\'un commentaire');
+    $requete = $this->dao->prepare('UPDATE news SET auteur = :auteur, titre = :titre, contenu = :contenu, dateModif = NOW() WHERE id = :id');
  
-    if ($request->postExists('pseudo'))
-    {
-      $comment = new Comment([
-        'news' => $request->getData('news'),
-        'auteur' => $request->postData('pseudo'),
-        'contenu' => $request->postData('contenu')
-      ]);
+    $requete->bindValue(':titre', $news->titre());
+    $requete->bindValue(':auteur', $news->auteur());
+    $requete->bindValue(':contenu', $news->contenu());
+    $requete->bindValue(':id', $news->id(), \PDO::PARAM_INT);
  
-      if ($comment->isValid())
-      {
-        $this->managers->getManagerOf('Comments')->save($comment);
- 
-        $this->app->user()->setFlash('Le commentaire a bien été ajouté, merci !');
- 
-        $this->app->httpResponse()->redirect('news-'.$request->getData('news').'.html');
-      }
-      else
-      {
-        $this->page->addVar('erreurs', $comment->erreurs());
-      }
- 
-      $this->page->addVar('comment', $comment);
-    }
+    $requete->execute();
+  }
 }
