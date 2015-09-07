@@ -1,60 +1,20 @@
 <?php
-	    // Include and instantiate the class.
+require 'personnage.php';
+$perso1 = new Personnage; // Un premier personnage
+$perso2 = new Personnage; // Un second personnage
 
-    require_once '../vendor/mobiledetect/mobiledetectlib/Mobile_Detect.php';
-    $detect = new Mobile_Detect;
-    // Any mobile device (phones or tablets).
-    if ( $detect->isMobile() ) {
-     	echo "not a mobile";
-    }else
-    	echo "not mobile";
+$perso1->setForce(10);
+$perso1->setExperience(2);
 
-        /*
-    // Any tablet device.
-    if( $detect->isTablet() ){
-     
-    }
-     
-    // Exclude tablets.
-    if( $detect->isMobile() && !$detect->isTablet() ){
-     
-    }
-     
-    // Check for a specific platform with the help of the magic methods:
-    if( $detect->isiOS() ){
-     
-    }
-     
-    if( $detect->isAndroidOS() ){
-     
-    }
-     
-    // Alternative method is() for checking specific properties.
-    // WARNING: this method is in BETA, some keyword properties will change in the future.
-    $detect->is('Chrome')
-    $detect->is('iOS')
-    $detect->is('UC Browser')
-    // [...]
-     
-    // Batch mode using setUserAgent():
-    $userAgents = array(
-    'Mozilla/5.0 (Linux; Android 4.0.4; Desire HD Build/IMM76D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19',
-    'BlackBerry7100i/4.1.0 Profile/MIDP-2.0 Configuration/CLDC-1.1 VendorID/103',
-    // [...]
-    );
-    foreach($userAgents as $userAgent){
-     
-      $detect->setUserAgent($userAgent);
-      $isMobile = $detect->isMobile();
-      $isTablet = $detect->isTablet();
-      // Use the force however you want.
-     
-    }
-     
-    // Get the version() of components.
-    // WARNING: this method is in BETA, some keyword properties will change in the future.
-    $detect->version('iPad'); // 4.3 (float)
-    $detect->version('iPhone') // 3.1 (float)
-    $detect->version('Android'); // 2.1 (float)
-    $detect->version('Opera Mini'); // 5.0 (float)
-    // [...]
+$perso2->setForce(90);
+$perso2->setExperience(58);
+
+$perso1->frapper($perso2);  // $perso1 frappe $perso2
+$perso1->gagnerExperience(); // $perso1 gagne de l'expérience
+
+$perso2->frapper($perso1);  // $perso2 frappe $perso1
+$perso2->gagnerExperience(); // $perso2 gagne de l'expérience
+
+echo 'Le personnage 1 a ', $perso1->force(), ' de force, contrairement au personnage 2 qui a ', $perso2->force(), ' de force.<br />';
+echo 'Le personnage 1 a ', $perso1->experience(), ' d\'expérience, contrairement au personnage 2 qui a ', $perso2->experience(), ' d\'expérience.<br />';
+echo 'Le personnage 1 a ', $perso1->degats(), ' de dégâts, contrairement au personnage 2 qui a ', $perso2->degats(), ' de dégâts.<br />';
