@@ -1,0 +1,10 @@
+=> Rapidité d'un framwork ?
+
+=> Revoir Page du router fontion getRoute()
+
+=>   \ à quoi sert il ?
+    $xml = new \DOMDocument;
+
+=> Une route n'est pas une entité ?
+
+=> Revoir entity fonctions OffsetGet & Set
