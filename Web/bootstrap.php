@@ -24,7 +24,5 @@ $entityLoader->register();
 $appClass = 'App\\'.$_GET['app'].'\\'.$_GET['app'].'Application';
 
 $app = new $appClass;
-echo "<pre>";
-print_r($app);echo "</pre>";
 
 $app->run();
