@@ -9,15 +9,16 @@ class MobileDetectController extends BackController
   public function executeIndex(HTTPRequest $request)
   {
 
-   //require __DIR__.'/../../../../lib/vendor/autoload.php';
-   $this->page->addVar('title', 'Detection of your device');
-
     $detect = new Mobile_Detect;
-    // Any mobile device (phones or tablets).
-    if ( $detect->isMobile() ) {
-      $device = "not a mobile";
-    }else
-      $device = "not mobile";
+    
+    $device = "Your device is a ";
+    if ( $detect->isMobile() && !$detect->isTablet() ) {
+      $device .= "mobile";
+    }else if( $detect->isMobile() ){
+        $device .= "tablet";
+    }else{
+        $device .= "computer";
+    }
 
     $this->page->addVar('device', $device);
   }
