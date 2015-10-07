@@ -9,7 +9,7 @@ class MobileDetectController extends BackController
   public function executeIndex(HTTPRequest $request)
   {
 
-    $detect = new Mobile_Detect;
+    $detect = new \Mobile_Detect;
     
     $device = "Your device is a ";
     if ( $detect->isMobile() && !$detect->isTablet() ) {
