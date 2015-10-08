@@ -42,7 +42,6 @@ abstract class Application
       // On ajoute la route au routeur.
       $router->addRoute(new Route($route->getAttribute('url'), $route->getAttribute('module'), $route->getAttribute('action'), $vars));
     }
-    echo $_SERVER['REQUEST_URI'];
     try
     {
       // On récupère la route correspondante à l'URL.

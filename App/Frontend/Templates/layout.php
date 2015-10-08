@@ -20,9 +20,14 @@
       <nav>
         <ul>
           <li><a href="/">Accueil</a></li>
+          <li><a href="/mobile-detect.html">Hack de ouf</a></li>
+          <?php if (!$user->isAuthenticated()) { ?>
+          <li><a href="/admin/">Connection</a></li>
+          <?php } ?>
           <?php if ($user->isAuthenticated()) { ?>
           <li><a href="/admin/">Admin</a></li>
           <li><a href="/admin/news-insert.html">Ajouter une news</a></li>
+          <li><a href="/admin/deconnexion.html">Deconnection</a></li>
           <?php } ?>
         </ul>
       </nav>

@@ -1,6 +1,8 @@
 <?php
 namespace App\Backend\Modules\News;
  
+use Model\CommentsManager;
+use Model\NewsManager;
 use \OCFram\BackController;
 use \OCFram\HTTPRequest;
 use \Entity\News;
@@ -14,9 +16,19 @@ class NewsController extends BackController
   public function executeDelete(HTTPRequest $request)
   {
     $newsId = $request->getData('id');
- 
-    $this->managers->getManagerOf('News')->delete($newsId);
-    $this->managers->getManagerOf('Comments')->deleteFromNews($newsId);
+
+    /** @var NewsManager $NewsManager */
+    $NewsManager = $this->managers->getManagerOf('News');
+    $News = $NewsManager->getUnique($newsId);
+    if ($News === null)
+      $this->app()->httpResponse()->redirect404();
+
+
+
+    /** @var CommentsManager $CommentManager */
+    $CommentManager = $this->managers->getManagerOf('Comments');
+    $CommentManager->deleteFromNews($newsId);
+    $NewsManager->delete($newsId);
  
     $this->app->user()->setFlash('La news a bien été supprimée !');
  
@@ -25,7 +37,11 @@ class NewsController extends BackController
  
   public function executeDeleteComment(HTTPRequest $request)
   {
-    $this->managers->getManagerOf('Comments')->delete($request->getData('id'));
+    /** @var CommentsManager $CommentManager */
+    $CommentManager = $this->managers->getManagerOf('Comments');
+    if($request->getData('id') == NULL )
+      $this->app()->httpResponse()->redirect404();
+    $CommentManager->delete($request->getData('id'));
  
     $this->app->user()->setFlash('Le commentaire a bien été supprimé !');
  
@@ -71,6 +87,8 @@ class NewsController extends BackController
     else
     {
       $comment = $this->managers->getManagerOf('Comments')->get($request->getData('id'));
+      if($comment == NULL)
+        $this->app()->httpResponse()->redirect404();
     }
  
     $formBuilder = new CommentFormBuilder($comment);
@@ -105,19 +123,17 @@ class NewsController extends BackController
         $news->setId($request->getData('id'));
       }
     }
-    else
-    {
+    else {
       // L'identifiant de la news est transmis si on veut la modifier
-      if ($request->getExists('id'))
-      {
+      if ($request->getExists('id')) {
         $news = $this->managers->getManagerOf('News')->getUnique($request->getData('id'));
-      }
-      else
-      {
+        if($news == NULL)
+          $this->app()->httpResponse()->redirect404();
+      } else {
         $news = new News;
       }
     }
- 
+
     $formBuilder = new NewsFormBuilder($news);
     $formBuilder->build();
  

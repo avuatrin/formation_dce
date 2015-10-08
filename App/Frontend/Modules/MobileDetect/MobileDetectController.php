@@ -1,5 +1,5 @@
 <?php
-namespace App\Backend\Modules\MobileDetect;
+namespace App\Frontend\Modules\MobileDetect;
  
 use \OCFram\BackController;
 use \OCFram\HTTPRequest;
