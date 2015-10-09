@@ -15,10 +15,10 @@ class ConnexionController extends BackController
       $login = $request->postData('login');
       $password = $request->postData('password');
  
-      if ($login == $this->app->config()->get('login') && $password == $this->app->config()->get('pass'))
+      if ($typeMember = $this->managers->getManagerOf('Members')->connect($login, $password) )
       {
         $this->app->user()->setAuthenticated(true);
-        $this->app->httpResponse()->redirect('.');
+        $this->app->httpResponse()->redirect('/');
       }
       else
       {

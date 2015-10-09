@@ -18,14 +18,17 @@ abstract class Application
  
     $this->name = '';
   }
- 
-  public function getController()
+
+  /**
+   * @return BackController
+   */
+   public function getController()
   {
     $router = new Router;
  
     $xml = new \DOMDocument;
     $xml->load(__DIR__.'/../../App/'.$this->name.'/Config/routes.xml');
- 
+
     $routes = $xml->getElementsByTagName('route');
  
     // On parcourt les routes du fichier XML.
@@ -60,7 +63,8 @@ abstract class Application
     $_GET = array_merge($_GET, $matchedRoute->vars());
  
     // On instancie le contrôleur.
-    $controllerClass = 'App\\'.$this->name.'\\Modules\\'.$matchedRoute->module().'\\'.$matchedRoute->module().'Controller';
+    $controllerClass = 'App\\'.$this->name.'\\Modules\\'.ucfirst($matchedRoute->module()).'\\'.ucfirst($matchedRoute->module()).'Controller';
+
     return new $controllerClass($this, $matchedRoute->module(), $matchedRoute->action());
   }
  

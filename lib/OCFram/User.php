@@ -1,10 +1,13 @@
 <?php
 namespace OCFram;
- 
+
+use \Entity\Member;
+
 session_start();
  
-class User
+class User extends ApplicationComponent
 {
+
   public function getAttribute($attr)
   {
     return isset($_SESSION[$attr]) ? $_SESSION[$attr] : null;
@@ -25,26 +28,37 @@ class User
  
   public function isAuthenticated()
   {
-    return isset($_SESSION['auth']) && $_SESSION['auth'] === true;
+    if ( isset($_SESSION['auth']) )
+      return $_SESSION['auth'] ;
   }
  
   public function setAttribute($attr, $value)
   {
     $_SESSION[$attr] = $value;
   }
- 
-  public function setAuthenticated($authenticated = true)
+
+    /**Connecte un utilisateur
+     * @param $member Member membre � connecter
+     */
+  public function setAuthenticated($member = null)
   {
-    if (!is_bool($authenticated))
-    {
-      throw new \InvalidArgumentException('La valeur spécifiée à la méthode User::setAuthenticated() doit être un boolean');
-    }
- 
-    $_SESSION['auth'] = $authenticated;
+      if ($member == null) {
+          unset ($_SESSION['auth']);
+          unset($_SESSION['member']);
+      } else {
+          $_SESSION['auth'] = true;
+          $this->setMember($member);
+        }
   }
  
   public function setFlash($value)
   {
     $_SESSION['flash'] = $value;
   }
+
+  public function setMember($member){
+      $_SESSION['member'] = $member;
+  }
+
+  public function member(){return $_SESSION['member']; }
 }

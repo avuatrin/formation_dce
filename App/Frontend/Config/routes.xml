@@ -4,4 +4,9 @@
   <route url="/news-([0-9]+)\.html" module="News" action="show" vars="id"/>
   <route url="/commenter-([0-9]+)\.html" module="News" action="insertComment" vars="news" />
   <route url="/mobile-detect\.html" module="MobileDetect" action="index"/>
+  <route url="/inscription\.html" module="inscription" action="index" />
+  <route url="/connexion\.html" module="connexion" action="index" />
+  <route url="/deconnexion\.html" module="Deconnexion" action="deconnexion"/>
+  <route url="/comment-update-([0-9]+)\.html" module="News" action="updateComment" vars="id" />
+  <route url="/comment-delete-([0-9]+)\.html" module="News" action="deleteComment" vars="id" />
 </routes>

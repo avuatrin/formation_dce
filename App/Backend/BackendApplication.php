@@ -2,6 +2,7 @@
 namespace App\Backend;
  
 use \OCFram\Application;
+use \Entity\Member;
  
 class BackendApplication extends Application
 {
@@ -14,12 +15,13 @@ class BackendApplication extends Application
  
   public function run()
   {
-    if ($this->user->isAuthenticated())
+    if ($this->user->isAuthenticated() && $this->user->member()->type() == Member::TYPE_ADMINISTRATOR)
     {
       $controller = $this->getController();
     }
     else
     {
+      $this->user()->setFlash('Vous n\'etes pas administrateur');
       $controller = new Modules\Connexion\ConnexionController($this, 'Connexion', 'index');
     }
  

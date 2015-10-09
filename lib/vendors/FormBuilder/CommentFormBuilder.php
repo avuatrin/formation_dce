@@ -1,8 +1,10 @@
 <?php
 namespace FormBuilder;
 
+use OCFram\ExistInDbValidator;
 use \OCFram\FormBuilder;
 use \OCFram\StringField;
+use \OCFram\SelectField;
 use \OCFram\TextField;
 use \OCFram\MaxLengthValidator;
 use \OCFram\NotNullValidator;
@@ -19,7 +21,14 @@ class CommentFormBuilder extends FormBuilder
           new MaxLengthValidator('L\'auteur spécifié est trop long (50 caractères maximum)', 50),
           new NotNullValidator('Merci de spécifier l\'auteur du commentaire'),
         ],
-       ]))
+       ]))->add(new SelectField([
+        'label' => 'Auteur',
+        'name' => 'auteur',
+        'options' => func_get_arg(0)->getList(func_get_arg(1)),
+        'validators' => [
+            new ExistInDbValidator('Merci de spécifier votre commentaire', func_get_arg(0), 'checkPseudoExist'),
+        ],
+    ]))
        ->add(new TextField([
         'label' => 'Contenu',
         'name' => 'contenu',

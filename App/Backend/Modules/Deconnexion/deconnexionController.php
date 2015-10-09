@@ -8,7 +8,7 @@ class DeconnexionController extends BackController
 {
   public function executeDeconnexion(HTTPRequest $request)
   {
-      $this->app->user()->setAuthenticated(false);
+      $this->app->user()->setAuthenticated();
       session_destroy();
       $this->app->httpResponse()->redirect('/');
   }

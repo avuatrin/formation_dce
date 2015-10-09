@@ -15,6 +15,7 @@ class FrontendApplication extends Application
   public function run()
   {
     $controller = $this->getController();
+    echo $this->user()->isAuthenticated() ? 'Connected as :'.$_SESSION['member']->pseudo().', '.$_SESSION['member']->type() : 'Not connected';
     $controller->execute();
  
     $this->httpResponse->setPage($controller->page());
