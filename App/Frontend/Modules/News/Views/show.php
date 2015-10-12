@@ -13,8 +13,11 @@
 <?php if ($news['dateAjout'] != $news['dateModif']) { ?>
   <p style="text-align: right;"><small><em>Modifiée le <?= $news['dateModif']->format('d/m/Y à H\hi') ?></em></small></p>
 <?php } ?>
- 
-<p><a href="commenter-<?= $news['id'] ?>.html">Ajouter un commentaire</a></p>
+
+<p id="displayComment" ><button  onclick="expand()" >Commenter</button></p>
+<div id="cache">
+  <?php require 'insertComment.php';?>
+</div>
  
 <?php
 if (empty($comments))
@@ -44,3 +47,4 @@ foreach ($comments as $comment)
 ?>
  
 <p><a href="commenter-<?= $news['id'] ?>.html">Ajouter un commentaire</a></p>
+<script type="text/javascript" src="/JS/scriptAffichageCommenter.js"></script>

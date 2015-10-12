@@ -52,6 +52,8 @@ class NewsController extends BackController
       $this->app->httpResponse()->redirect404();
     }
 
+    $this->processComment($request, 'id');
+
     $this->page->addVar('title', $news->titre());
     $this->page->addVar('news', $news);
     $this->page->addVar('comments', $this->managers->getManagerOf('Comments')->getListOf($news->id()));
@@ -59,42 +61,48 @@ class NewsController extends BackController
  
   public function executeInsertComment(HTTPRequest $request)
   {
-    // Si le formulaire a été envoyé.
-    if ($request->method() == 'POST') {
-      $comment = new Comment([
-          'news' => $request->getData('news'),
-          'auteur' => $request->postData('auteur'),
-          'email' => $request->postData('email'),
-          'contenu' => $request->postData('contenu')
-      ]);
-    } else {
-      $comment = new Comment;
-    }
+    $this->processComment($request, 'news');
 
-
-    if (!$this->managers->getManagerOf('News')->getUnique($request->getData('news'))) {
-        if ($request->method() == 'POST')
-          $this->app()->user()->setFlash('La news a été supprimée pendant que vous la commentiez, désolé !');
-        $this->app()->httpResponse()->redirect404();
-    }
-
-    $formBuilder = new CommentFormBuilder($comment);
-    $formBuilder->build($this->app()->user()->isAuthenticated(), $this->managers->getManagerOf('Members') , $this->app()->user()->isAuthenticated() ? $this->app()->user()->member()->id() : null);
- 
-    $form = $formBuilder->form();
-
-    $formHandler = new FormHandler($form, $this->managers->getManagerOf('Comments'), $request);
-
-    if ($formHandler->process())
-    {
-      $this->app->user()->setFlash('Le commentaire a bien été ajouté, merci !');
- 
-      $this->app->httpResponse()->redirect('news-'.$request->getData('news').'.html');
-    }
- 
-    $this->page->addVar('comment', $comment);
-    $this->page->addVar('form', $form->createView());
     $this->page->addVar('title', 'Ajout d\'un commentaire');
+  }
+
+  public function processComment(HTTPRequest$request, $page){
+      // Si le formulaire a été envoyé.
+      if ($request->method() == 'POST') {
+          $comment = new Comment([
+              'news' => $request->getData($page),
+              'auteur' => $request->postData('auteur'),
+              'email' => $request->postData('email'),
+              'contenu' => $request->postData('contenu')
+          ]);
+      } else {
+          $comment = new Comment;
+      }
+
+
+      if (!$this->managers->getManagerOf('News')->getUnique($request->getData($page))) {
+          if ($request->method() == 'POST')
+              $this->app()->user()->setFlash('La news a été supprimée pendant que vous la commentiez, désolé !');
+          $this->app()->httpResponse()->redirect404();
+      }
+
+      $formBuilder = new CommentFormBuilder($comment);
+      $formBuilder->build($this->app()->user()->isAuthenticated(), $this->managers->getManagerOf('Members') , $this->app()->user()->isAuthenticated() ? $this->app()->user()->member()->id() : null);
+
+      $form = $formBuilder->form();
+
+      $formHandler = new FormHandler($form, $this->managers->getManagerOf('Comments'), $request);
+
+      if ($formHandler->process())
+      {
+          $this->app->user()->setFlash('Le commentaire a bien été ajouté, merci !');
+
+          $this->app->httpResponse()->redirect('news-'.$request->getData($page).'.html');
+      }
+
+      $this->page->addVar('comment', $comment);
+      $this->page->addVar('newsId', $request->getData($page));
+      $this->page->addVar('form', $form->createView());
   }
 
   public function executeUpdate(HTTPRequest $request){

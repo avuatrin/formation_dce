@@ -8,14 +8,11 @@ class TextField extends Field
   
   public function buildWidget()
   {
-    $widget = '';
-    
-    if (!empty($this->errorMessage))
-    {
-      $widget .= $this->errorMessage.'<br />';
+    $widget = '<label ';
+    if (!empty($this->errorMessage)) {
+      $widget .= 'class="falseField"';
     }
-    
-    $widget .= '<label>'.$this->label.'</label><textarea name="'.$this->name.'"';
+    $widget .= '>' . $this->label.'</label><textarea name="'.$this->name.'"';
     
     if (!empty($this->cols))
     {
@@ -33,8 +30,15 @@ class TextField extends Field
     {
       $widget .= htmlspecialchars($this->value);
     }
-    
-    return $widget.'</textarea>';
+
+    $widget.='</textarea>';
+
+    if (!empty($this->errorMessage))
+    {
+      $widget .= '<br />'.$this->errorMessage.'<br />';
+    }
+
+    return $widget;
   }
   
   public function setCols($cols)

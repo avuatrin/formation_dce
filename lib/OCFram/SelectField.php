@@ -7,13 +7,11 @@ class SelectField extends Field
 
     public function buildWidget()
     {
-        $widget = '';
-
+        $widget = '<label ';
         if (!empty($this->errorMessage)) {
-            $widget .= $this->errorMessage . '<br />';
+            $widget .= 'class="falseField"';
         }
-
-        $widget .= '<label>' . $this->label . '</label><select name="' . $this->name . '" required>';
+        $widget .= '>' .  $this->label . '</label><select name="' . $this->name . '" required>';
 
         foreach($this->options as $id => $option) {
             $widget .= '<option  value="' . $id . '"';
@@ -23,7 +21,13 @@ class SelectField extends Field
             $widget .= '>' . htmlspecialchars($option) . '</option>';
         }
 
-        return $widget .= ' </select>';
+        $widget .= ' </select>';
+
+        if (!empty($this->errorMessage))
+        {
+            $widget .= '<br />'.$this->errorMessage.'<br />';
+        }
+        return $widget;
     }
 
     public function setOptions($options)

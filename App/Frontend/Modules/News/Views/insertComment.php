@@ -1,5 +1,5 @@
 <h2>Ajouter un commentaire</h2>
-<form action="" method="post">
+<form action="<?= 'commenter-'.$newsId.'.html'; ?>" method="post">
   <p>
     <?= $form ?>
     

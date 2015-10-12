@@ -8,13 +8,11 @@ class StringField extends Field
 
   public function buildWidget()
   {
-    $widget = '';
-
+    $widget = '<label ';
     if (!empty($this->errorMessage)) {
-      $widget .= $this->errorMessage . '<br />';
+      $widget .= 'class="falseField"';
     }
-
-    $widget .= '<label>' . $this->label . '</label><input name="' . $this->name . '"';
+    $widget .= '>' . $this->label . '</label><input name="' . $this->name . '"';
 
     if (!empty($this->value)) {
       $widget .= ' value="' . htmlspecialchars($this->value) . '"';
@@ -29,7 +27,12 @@ class StringField extends Field
       $widget .= ' maxlength="' . $this->maxLength . '"';
     }
 
-    return $widget .= ' />';
+    $widget .= ' />';
+
+    if (!empty($this->errorMessage)) {
+      $widget .= '<br />'.$this->errorMessage.'<br />';
+    }
+    return $widget;
   }
 
   public function setMaxLength($maxLength)
