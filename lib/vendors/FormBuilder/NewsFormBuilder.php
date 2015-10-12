@@ -17,7 +17,9 @@ class NewsFormBuilder extends FormBuilder
               'label' => 'Auteur',
               'name' => 'auteur',
               'options' => func_get_arg(1)->getList(func_get_arg(2)),
-              'validators' => [],
+              'validators' => [
+                  new NotNullValidator('Merci de spécifier un auteur')
+              ],
           ]));
         }
       $this->form->add(new StringField([

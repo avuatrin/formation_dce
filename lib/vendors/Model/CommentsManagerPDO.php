@@ -64,7 +64,7 @@ class CommentsManagerPDO extends CommentsManager
  
   public function get($id)
   {
-    $q = $this->dao->prepare('SELECT NCC_id AS id, NCC_fk_NNC AS news, NMC_pseudo AS auteur, NCC_content AS contenu FROM T_NEW_commentc INNER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id WHERE NCC_id = :id');
+    $q = $this->dao->prepare('SELECT NCC_id AS id, NCC_fk_NNC AS news, NCC_fk_NMC AS auteur, NCC_content AS contenu FROM T_NEW_commentc WHERE NCC_id = :id');
     $q->bindValue(':id', (int) $id, \PDO::PARAM_INT);
     $q->execute();
  

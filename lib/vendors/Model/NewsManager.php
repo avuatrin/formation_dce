@@ -56,9 +56,10 @@ abstract class NewsManager extends Manager
   /**
    * Méthode retournant une news précise.
    * @param $id int L'identifiant de la news à récupérer
+   * @param $bddMode bool true si on doit retourner les clés étrangères, false pour un affichage complet
    * @return News La news demandée
    */
-  abstract public function getUnique($id);
+  abstract public function getUnique($id, $bddMode);
  
   /**
    * Méthode permettant de modifier une news.

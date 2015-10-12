@@ -25,7 +25,9 @@ class CommentFormBuilder extends FormBuilder
         'label' => 'Auteur',
         'name' => 'auteur',
         'options' => func_get_arg(0)->getList(func_get_arg(1)),
-        'validators' => [],
+        'validators' => [
+            new NotNullValidator('Merci de spécifier un auteur')
+        ],
     ]))
        ->add(new TextField([
         'label' => 'Contenu',

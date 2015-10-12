@@ -124,7 +124,7 @@ class NewsController extends BackController
     else {
       // L'identifiant de la news est transmis si on veut la modifier
       if ($request->getExists('id')) {
-        $news = $this->managers->getManagerOf('News')->getUnique($request->getData('id'));
+        $news = $this->managers->getManagerOf('News')->getUnique($request->getData('id'), true);
         if($news == NULL)
           $this->app()->httpResponse()->redirect404();
       } else {
@@ -162,7 +162,7 @@ class NewsController extends BackController
         {
             $comment = new Comment([
                 'id' => $request->getData('id'),
-                'auteur' => $request->postData('auteur'),
+                    'auteur' => $request->postData('auteur'),
                 'contenu' => $request->postData('contenu')
             ]);
         }
@@ -173,7 +173,7 @@ class NewsController extends BackController
                 $this->app()->httpResponse()->redirect404();
         }
 
-        if($comment->auteur() != $this->app()->user()->member()->pseudo()){
+        if($comment->auteur() != $this->app()->user()->member()->id()){
             $this->app->user()->setFlash('Ce n\'est pas votre commentaire');
             $this->app->httpResponse()->redirect('/');
         }
@@ -220,4 +220,28 @@ class NewsController extends BackController
 
     $this->page->addVar('title', 'Ajout d\'une news');
 }
+
+  public function executeDelete(HTTPRequest $request)
+    {
+
+        /** @var NewsManager $NewsManager */
+        $NewsManager = $this->managers->getManagerOf('News');
+        $News = $NewsManager->getUnique($request->getData('id'),false);
+        if ($News === null)
+            $this->app()->httpResponse()->redirect404();
+
+        if(!$this->app()->user()->isAuthenticated()){
+            $this->app->user()->setFlash('Ce n\'est pas votre news');
+            $this->app->httpResponse()->redirect('/');
+        }
+
+        /** @var CommentsManager $CommentManager */
+        $CommentManager = $this->managers->getManagerOf('Comments');
+        $CommentManager->deleteFromNews($News->id());
+        $NewsManager->delete($News->id());
+
+        $this->app->user()->setFlash('La news a bien été supprimée !');
+
+        $this->app->httpResponse()->redirect('.');
+    }
 }
