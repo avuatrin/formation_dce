@@ -16,7 +16,11 @@ class SelectField extends Field
         $widget .= '<label>' . $this->label . '</label><select name="' . $this->name . '" required>';
 
         foreach($this->options as $id => $option) {
-            $widget .= '<option  value="' . htmlspecialchars($option) . '">' . htmlspecialchars($option) . '</option>';
+            $widget .= '<option  value="' . htmlspecialchars($option) . '"';
+            if (!empty($this->value)) {
+                $widget .= $this->value == $option ? 'selected' : '';
+            }
+            $widget .= '>' . htmlspecialchars($option) . '</option>';
         }
 
         return $widget .= ' </select>';

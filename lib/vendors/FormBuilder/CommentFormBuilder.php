@@ -25,9 +25,7 @@ class CommentFormBuilder extends FormBuilder
         'label' => 'Auteur',
         'name' => 'auteur',
         'options' => func_get_arg(0)->getList(func_get_arg(1)),
-        'validators' => [
-            new ExistInDbValidator('Merci de spécifier votre commentaire', func_get_arg(0), 'checkPseudoExist'),
-        ],
+        'validators' => [],
     ]))
        ->add(new TextField([
         'label' => 'Contenu',

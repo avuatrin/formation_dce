@@ -5,8 +5,12 @@ use Entity\Member;
 use \OCFram\BackController;
 use \OCFram\HTTPRequest;
 use \Entity\Comment;
+use \Model\CommentsManager;
 use \FormBuilder\CommentFormBuilder;
+use \FormBuilder\NewsFormBuilder;
 use \OCFram\FormHandler;
+use \Model\NewsManager;
+use \Entity\News;
  
 class NewsController extends BackController
 {
@@ -74,7 +78,7 @@ class NewsController extends BackController
     }
 
     $formBuilder = new CommentFormBuilder($comment);
-    $formBuilder->build();
+    $formBuilder->build($this->managers->getManagerOf('Members') , $this->app()->user()->member()->id());
  
     $form = $formBuilder->form();
 
@@ -92,7 +96,7 @@ class NewsController extends BackController
     $this->page->addVar('title', 'Ajout d\'un commentaire');
   }
 
-  public function executeWrite(HTTPRequest $request){
+  public function executeUpdate(HTTPRequest $request){
     $this->processForm($request);
 
     $this->page->addVar('title', 'Ajout d\'une news');
@@ -100,10 +104,14 @@ class NewsController extends BackController
 
   public function processForm(HTTPRequest $request)
   {
+    if(!$this->app()->user()->isAuthenticated()){
+        $this->app->user()->setFlash('Connectez vous ou inscrivez vous pour accéder à cette section');
+        $this->app->httpResponse()->redirect('/');
+    }
     if ($request->method() == 'POST')
     {
       $news = new News([
-          'auteur' => $request->postData('auteur'),
+          'auteur' => $this->app()->user()->member()->id(),
           'titre' => $request->postData('titre'),
           'contenu' => $request->postData('contenu')
       ]);
@@ -135,14 +143,19 @@ class NewsController extends BackController
     {
       $this->app->user()->setFlash($news->isNew() ? 'La news a bien été ajoutée !' : 'La news a bien été modifiée !');
 
-      $this->app->httpResponse()->redirect('/admin/');
+      $this->app->httpResponse()->redirect('/');
     }
 
     $this->page->addVar('form', $form->createView());
   }
 
-    public function executeUpdateComment(HTTPRequest $request)
+  public function executeUpdateComment(HTTPRequest $request)
     {
+        if(!$this->app()->user()->isAuthenticated()){
+            $this->app->user()->setFlash('Connectez vous ou inscrivez vous pour accéder à cette section');
+            $this->app->httpResponse()->redirect('/');
+        }
+
         $this->page->addVar('title', 'Modification de votre commentaire');
 
         if ($request->method() == 'POST')
@@ -177,4 +190,29 @@ class NewsController extends BackController
 
         $this->page->addVar('form', $form->createView());
     }
+
+  public function executeDeleteComment(HTTPRequest $request)
+    {
+        if(!$this->app()->user()->isAuthenticated()){
+            $this->app->user()->setFlash('Connectez vous ou inscrivez vous pour réaliser cette action');
+            $this->app->httpResponse()->redirect('/');
+        }
+        /** @var CommentsManager $CommentManager */
+        $CommentManager = $this->managers->getManagerOf('Comments');
+        if($request->getData('id') == NULL )
+            $this->app()->httpResponse()->redirect404();
+        if( $this->app()->user()->isAuthenticated() )
+            $CommentManager->delete( $request->getData('id'), $this->app()->user()->member()->id() );
+
+        $this->app->user()->setFlash('Le commentaire a bien été supprimé !');
+
+        $this->app->httpResponse()->redirect('.');
+    }
+
+  public function executeInsert(HTTPRequest $request)
+{
+    $this->processForm($request);
+
+    $this->page->addVar('title', 'Ajout d\'une news');
+}
 }

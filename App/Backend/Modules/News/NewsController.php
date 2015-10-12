@@ -92,7 +92,7 @@ class NewsController extends BackController
     }
  
     $formBuilder = new CommentFormBuilder($comment);
-    $formBuilder->build();
+    $formBuilder->build($this->managers->getManagerOf('Members'), $this->app()->user()->member()->id());
  
     $form = $formBuilder->form();
  

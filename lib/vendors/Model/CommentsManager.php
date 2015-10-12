@@ -15,10 +15,11 @@ abstract class CommentsManager extends Manager
  
   /**
    * Méthode permettant de supprimer un commentaire.
-   * @param $id L'identifiant du commentaire à supprimer
+   * @param $id int L'identifiant du commentaire à supprimer
+   * @param $user int L'identifiant du commentaire à supprimer
    * @return void
    */
-  abstract public function delete($id);
+  abstract public function delete($id, $user);
  
   /**
    * Méthode permettant de supprimer tous les commentaires liés à une news
@@ -29,7 +30,7 @@ abstract class CommentsManager extends Manager
  
   /**
    * Méthode permettant d'enregistrer un commentaire.
-   * @param $comment Le commentaire à enregistrer
+   * @param $comment Comment Le commentaire à enregistrer
    * @return void
    */
   public function save(Comment $comment)
@@ -53,7 +54,7 @@ abstract class CommentsManager extends Manager
  
   /**
    * Méthode permettant de modifier un commentaire.
-   * @param $comment Le commentaire à modifier
+   * @param $comment Comment Le commentaire à modifier
    * @return void
    */
   abstract protected function modify(Comment $comment);

@@ -9,4 +9,6 @@
   <route url="/deconnexion\.html" module="Deconnexion" action="deconnexion"/>
   <route url="/comment-update-([0-9]+)\.html" module="News" action="updateComment" vars="id" />
   <route url="/comment-delete-([0-9]+)\.html" module="News" action="deleteComment" vars="id" />
+  <route url="/news-insert\.html" module="News" action="insert" />
+
 </routes>

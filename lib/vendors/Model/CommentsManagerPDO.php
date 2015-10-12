@@ -18,7 +18,7 @@ class CommentsManagerPDO extends CommentsManager
     $comment->setId($this->dao->lastInsertId());
   }
  
-  public function delete($id)
+  public function delete($id, $user)
   {
     $this->dao->exec('DELETE FROM comments WHERE id = '.(int) $id);
   }
