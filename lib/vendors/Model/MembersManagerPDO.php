@@ -29,22 +29,27 @@ class MembersManagerPDO extends MembersManager
 
     public function getList($id)
     {
-        $requete = $this->dao->prepare('SELECT NMC_pseudo FROM T_NEW_memberc WHERE NMC_id = :id');
-
+        $requete = $this->dao->prepare('SELECT NMC_fk_NMY FROM T_NEW_memberc WHERE NMC_id = :id');
         $requete->bindValue(':id', (int) $id, \PDO::PARAM_INT);
+        $requete->execute();
+        $typeMember = $requete->fetchColumn();
 
-        $result = $requete->execute();
-        $rows = [];
-        while($row = mysqli_fetch_array($result))
-        {
-            $rows[] = $row;
+        if($typeMember == Member::TYPE_ADMINISTRATOR)
+            $requete = $this->dao->prepare('SELECT NMC_pseudo FROM T_NEW_memberc');
+        else {
+            $requete = $this->dao->prepare('SELECT NMC_pseudo FROM T_NEW_memberc WHERE NMC_id = :id');
+            $requete->bindValue(':id', (int) $id, \PDO::PARAM_INT);
         }
-        return $rows;
+        $requete->execute();
+        while ($pseudo = $requete->fetch())
+            $pseudos[] = $pseudo[0];
+
+        return $pseudos;
     }
 
     public function getUnique($id)
     {
-        $requete = $this->dao->prepare('SELECT NMC_id AS id, NMC_password AS password , NMC_fk_NMY AS type, NMC_pseudo AS pseudo, NMC_philosophy AS philosophy FROM T_NEW_memberc')' WHERE NMC_id = :id');
+        $requete = $this->dao->prepare('SELECT NMC_id AS id, NMC_password AS password , NMC_fk_NMY AS type, NMC_pseudo AS pseudo, NMC_philosophy AS philosophy FROM T_NEW_memberc WHERE NMC_id = :id');
         $requete->bindValue(':id', (int) $id, \PDO::PARAM_INT);
         $requete->execute();
 

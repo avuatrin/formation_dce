@@ -160,8 +160,9 @@ class NewsController extends BackController
                 $this->app()->httpResponse()->redirect404();
         }
 
-        $formBuilder = new CommentFormBuilder($comment, $this->managers->getManagerOf('Members'), $this->app()->user()->member()->type() == Member::TYPE_ADMINISTRATOR);
-        $formBuilder->build();
+        $formBuilder = new CommentFormBuilder($comment);
+
+        $formBuilder->build($this->managers->getManagerOf('Members') , $this->app()->user()->member()->id());
 
         $form = $formBuilder->form();
 

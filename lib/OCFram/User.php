@@ -56,9 +56,12 @@ class User extends ApplicationComponent
     $_SESSION['flash'] = $value;
   }
 
-  public function setMember($member){
+  public function setMember(Member $member){
       $_SESSION['member'] = $member;
   }
 
+  /**
+   * @return Member membre connécté
+   */
   public function member(){return $_SESSION['member']; }
 }

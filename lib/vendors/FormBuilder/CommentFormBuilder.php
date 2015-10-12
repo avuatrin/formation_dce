@@ -13,7 +13,7 @@ class CommentFormBuilder extends FormBuilder
 {
   public function build()
   {
-    $this->form->add(new StringField([
+    $this->form->/*add(new StringField([
         'label' => 'Auteur',
         'name' => 'auteur',
         'maxLength' => 50,
@@ -21,7 +21,7 @@ class CommentFormBuilder extends FormBuilder
           new MaxLengthValidator('L\'auteur spécifié est trop long (50 caractères maximum)', 50),
           new NotNullValidator('Merci de spécifier l\'auteur du commentaire'),
         ],
-       ]))->add(new SelectField([
+       ]))->*/add(new SelectField([
         'label' => 'Auteur',
         'name' => 'auteur',
         'options' => func_get_arg(0)->getList(func_get_arg(1)),

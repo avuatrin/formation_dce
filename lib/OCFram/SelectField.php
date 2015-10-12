@@ -13,18 +13,18 @@ class SelectField extends Field
             $widget .= $this->errorMessage . '<br />';
         }
 
-        $widget .= '<label>' . $this->label . '</label><select name="' . $this->name . '">';
+        $widget .= '<label>' . $this->label . '</label><select name="' . $this->name . '" required>';
 
-        foreach($this->options as $option)
-            $widget .= '<option  value="' . htmlspecialchars($option) . '">'.htmlspecialchars($option).'</option>';
-
+        foreach($this->options as $id => $option) {
+            $widget .= '<option  value="' . htmlspecialchars($option) . '">' . htmlspecialchars($option) . '</option>';
+        }
 
         return $widget .= ' </select>';
     }
 
     public function setOptions($options)
     {
-        $this->options[] = $options;
+        $this->options = $options;
     }
 
 
