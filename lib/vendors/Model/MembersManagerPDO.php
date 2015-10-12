@@ -35,14 +35,15 @@ class MembersManagerPDO extends MembersManager
         $typeMember = $requete->fetchColumn();
 
         if($typeMember == Member::TYPE_ADMINISTRATOR)
-            $requete = $this->dao->prepare('SELECT NMC_pseudo FROM T_NEW_memberc');
+            $requete = $this->dao->prepare('SELECT NMC_id, NMC_pseudo FROM T_NEW_memberc');
         else {
-            $requete = $this->dao->prepare('SELECT NMC_pseudo FROM T_NEW_memberc WHERE NMC_id = :id');
+            $requete = $this->dao->prepare('SELECT NMC_id, NMC_pseudo FROM T_NEW_memberc WHERE NMC_id = :id');
             $requete->bindValue(':id', (int) $id, \PDO::PARAM_INT);
         }
         $requete->execute();
+        $pseudos = [];
         while ($pseudo = $requete->fetch())
-            $pseudos[] = $pseudo[0];
+            $pseudos[$pseudo[0]] = $pseudo[1];  //  [id] => pseudo
 
         return $pseudos;
     }

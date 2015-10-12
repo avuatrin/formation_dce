@@ -7,7 +7,7 @@ class NewsManagerPDO extends NewsManager
 {
   protected function add(News $news)
   {
-    $requete = $this->dao->prepare('INSERT INTO news SET auteur = :auteur, titre = :titre, contenu = :contenu, dateAjout = NOW(), dateModif = NOW()');
+    $requete = $this->dao->prepare('INSERT INTO T_NEW_newsc SET NNC_fk_NMC = :auteur, NNC_title = :titre, NNC_content = :contenu, NNC_dateAdd = NOW(), NNC_dateModif = NOW()');
  
     $requete->bindValue(':titre', $news->titre());
     $requete->bindValue(':auteur', $news->auteur());
@@ -18,23 +18,23 @@ class NewsManagerPDO extends NewsManager
  
   public function count()
   {
-    return $this->dao->query('SELECT COUNT(*) FROM news')->fetchColumn();
+    return $this->dao->query('SELECT COUNT(*) FROM T_NEW_newsc')->fetchColumn();
   }
  
   public function delete($id)
   {
-    $this->dao->exec('DELETE FROM news WHERE id = '.(int) $id);
+    $this->dao->exec('DELETE FROM T_NEW_newsc WHERE NNC_id = '.(int) $id);
   }
  
   public function getList($debut = -1, $limite = -1)
   {
-    $sql = 'SELECT id, auteur, titre, contenu, dateAjout, dateModif FROM news ORDER BY id DESC';
+    $sql = 'SELECT NNC_id AS id, NNC_fk_NMC AS Auteur, NNC_title AS titre, NNC_content AS contenu, NNC_dateAdd AS dateAjout, NNC_dateModif AS dateModif FROM T_NEW_newsc ORDER BY NNC_id DESC';
  
-    if ($debut != -1 || $limite != -1)
+    /*if ($debut != -1 || $limite != -1)
     {
       $sql .= ' LIMIT '.(int) $limite.' OFFSET '.(int) $debut;
     }
- 
+ */
     $requete = $this->dao->query($sql);
     $requete->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, '\Entity\News');
  
@@ -53,7 +53,7 @@ class NewsManagerPDO extends NewsManager
  
   public function getUnique($id)
   {
-    $requete = $this->dao->prepare('SELECT id, auteur, titre, contenu, dateAjout, dateModif FROM news WHERE id = :id');
+    $requete = $this->dao->prepare('SELECT NNC_id AS id, NMC_pseudo AS auteur, NNC_title AS titre, NNC_content AS contenu, NNC_dateAdd AS dateAjout, NNC_dateModif AS dateModif FROM T_NEW_newsc INNER JOIN T_NEW_memberc ON NNC_fk_NMC = NMC_id WHERE NNC_id = :id');
     $requete->bindValue(':id', (int) $id, \PDO::PARAM_INT);
     $requete->execute();
  
@@ -72,7 +72,7 @@ class NewsManagerPDO extends NewsManager
  
   protected function modify(News $news)
   {
-    $requete = $this->dao->prepare('UPDATE news SET auteur = :auteur, titre = :titre, contenu = :contenu, dateModif = NOW() WHERE id = :id');
+    $requete = $this->dao->prepare('UPDATE T_NEW_newsc SET NNC_fk_NMC = :auteur, NNC_title = :titre, NNC_comtent = :contenu, NNC_dateModif = NOW() WHERE NNC_id = :id');
  
     $requete->bindValue(':titre', $news->titre());
     $requete->bindValue(':auteur', $news->auteur());

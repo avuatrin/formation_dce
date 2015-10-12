@@ -6,7 +6,7 @@ use \OCFram\Entity;
 class Comment extends Entity
 {
   protected $news,
-            $auteur,
+          $auteur,
             $contenu,
             $date;
  

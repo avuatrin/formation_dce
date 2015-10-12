@@ -3,6 +3,7 @@ namespace FormBuilder;
 
 use \OCFram\FormBuilder;
 use \OCFram\StringField;
+use \OCFram\SelectField;
 use \OCFram\TextField;
 use \OCFram\MaxLengthValidator;
 use \OCFram\NotNullValidator;
@@ -12,14 +13,11 @@ class NewsFormBuilder extends FormBuilder
   public function build($admin = false)
   {
       if ($admin){
-          $this->form->add(new StringField([
+          $this->form->add(new SelectField([
               'label' => 'Auteur',
               'name' => 'auteur',
-              'maxLength' => 20,
-              'validators' => [
-                  new MaxLengthValidator('L\'auteur spécifié est trop long (20 caractères maximum)', 20),
-                  new NotNullValidator('Merci de spécifier l\'auteur de la news'),
-              ],
+              'options' => func_get_arg(1)->getList(func_get_arg(2)),
+              'validators' => [],
           ]));
         }
       $this->form->add(new StringField([

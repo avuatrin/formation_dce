@@ -173,6 +173,11 @@ class NewsController extends BackController
                 $this->app()->httpResponse()->redirect404();
         }
 
+        if($comment->auteur() != $this->app()->user()->member()->pseudo()){
+            $this->app->user()->setFlash('Ce n\'est pas votre commentaire');
+            $this->app->httpResponse()->redirect('/');
+        }
+
         $formBuilder = new CommentFormBuilder($comment);
 
         $formBuilder->build($this->managers->getManagerOf('Members') , $this->app()->user()->member()->id());
@@ -185,7 +190,7 @@ class NewsController extends BackController
         {
             $this->app->user()->setFlash('Le commentaire a bien été modifié');
 
-            $this->app->httpResponse()->redirect('/admin/');
+            $this->app->httpResponse()->redirect('/');
         }
 
         $this->page->addVar('form', $form->createView());
