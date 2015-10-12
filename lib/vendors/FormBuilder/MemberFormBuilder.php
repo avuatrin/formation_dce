@@ -7,6 +7,7 @@ use \OCFram\TextField;
 use \OCFram\MaxLengthValidator;
 use \OCFram\NotNullValidator;
 use \OCFram\ExistInDbValidator;
+use \OCFram\EmailValidator;
 
 class MemberFormBuilder extends FormBuilder
 {
@@ -17,9 +18,9 @@ class MemberFormBuilder extends FormBuilder
             'name' => 'pseudo',
             'maxLength' => 20,
             'validators' => [
-                new MaxLengthValidator('Le pseudo spécifié est trop long (20 caractères maximum)', 20),
-                new NotNullValidator('Merci de spécifier un pseudo'),
-                new ExistInDbValidator('Pseudo dejà existant',func_get_arg(0),'checkPseudoExist')
+                new MaxLengthValidator('Le pseudo spÃ©cifiÃ© est trop long (20 caractÃ¨res maximum)', 20),
+                new NotNullValidator('Merci de spÃ©cifier un pseudo'),
+                new ExistInDbValidator('Pseudo dejÃ  existant',func_get_arg(0),'checkPseudoExist')
             ],
         ]))
             ->add(new StringField([
@@ -28,8 +29,16 @@ class MemberFormBuilder extends FormBuilder
                 'type' => 'password',
                 'maxLength' => 255,
                 'validators' => [
-                    new MaxLengthValidator('Le titre spécifié est trop long (255 caractères maximum)', 255),
-                    new NotNullValidator('Merci de spécifier votre mot de passe'),
+                    new MaxLengthValidator('Le titre spÃ©cifiÃ© est trop long (255 caractÃ¨res maximum)', 255),
+                    new NotNullValidator('Merci de spÃ©cifier votre mot de passe'),
+                ],
+            ]))->add(new StringField([
+                'label' => 'E-mail',
+                'name' => 'email',
+                'maxLength' => 150,
+                'validators' => [
+                    new MaxLengthValidator('Le titre spÃ©cifiÃ© est trop long (255 caractÃ¨res maximum)', 255),
+                    new EmailValidator('Merci d\'entrer un email valide'),
                 ],
             ]))
             ->add(new TextField([

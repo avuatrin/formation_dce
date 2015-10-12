@@ -16,6 +16,7 @@ class InscriptionController extends BackController
             $member = new Member([
                 'pseudo' => $request->postData('pseudo'),
                 'password' => $request->postData('password'),
+                'email' => $request->postData('email'),
                 'philosophy' => $request->postData('philosophy'),
                 'type' => Member::TYPE_AUTHOR
             ]);

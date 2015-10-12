@@ -135,7 +135,7 @@ class NewsController extends BackController
     }
 
     $formBuilder = new NewsFormBuilder($news);
-    $formBuilder->build(true, $this->managers->getManagerOf('Members'), $this->app()->user()->member()->id());
+    $formBuilder->build(true, $this->managers->getManagerOf('Members'), $this->app()->user()->isAuthenticated() ? $this->app()->user()->member()->id() : null);
  
     $form = $formBuilder->form();
  

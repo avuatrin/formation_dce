@@ -7,8 +7,13 @@ class CommentsManagerPDO extends CommentsManager
 {
   protected function add(Comment $comment)
   {
-    $q = $this->dao->prepare('INSERT INTO T_NEW_commentc SET NCC_fk_NNC = :news, NCC_fk_NMC = :auteur, NCC_content = :contenu, NCC_date = NOW()');
- 
+  if ($comment->email() != null) {
+    $q = $this->dao->prepare('INSERT INTO T_NEW_commentc SET NCC_fk_NNC = :news, NCC_auteur = :auteur, NCC_email = :email, NCC_content = :contenu, NCC_date = NOW()');
+    $q->bindValue(':email', $comment->email());
+  }else
+      $q = $this->dao->prepare('INSERT INTO T_NEW_commentc SET NCC_fk_NNC = :news, NCC_fk_NMC = :auteur, NCC_content = :contenu, NCC_date = NOW()');
+
+    var_dump( $q);
     $q->bindValue(':news', $comment->news(), \PDO::PARAM_INT);
     $q->bindValue(':auteur', $comment->auteur());
     $q->bindValue(':contenu', $comment->contenu());
@@ -35,7 +40,7 @@ class CommentsManagerPDO extends CommentsManager
       throw new \InvalidArgumentException('L\'identifiant de la news passé doit être un nombre entier valide');
     }
  
-    $q = $this->dao->prepare('SELECT NCC_id AS id, NCC_fk_NNC AS news, NMC_pseudo AS auteur, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc INNER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id WHERE NCC_fk_NNC = :news');
+    $q = $this->dao->prepare('SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id WHERE NCC_fk_NNC = :news');
     $q->bindValue(':news', $news, \PDO::PARAM_INT);
     $q->execute();
  

@@ -35,7 +35,7 @@ class ConnexionController extends BackController
         $memberManager = $this->managers->getManagerOf('Members');
         if ($formHandler->verify())
         {
-            $this->app->user()->setFlash('Vous etes désormais connécté');
+            $this->app->user()->setFlash('Vous etes dÃ©sormais connectÃ©');
             $this->app->user()->setAuthenticated( $memberManager->getUnique(($memberManager->connect($request->postData('pseudo'),$request->postData('password'))) ) );
             $this->app->httpResponse()->redirect('/');
 

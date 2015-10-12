@@ -64,6 +64,7 @@ class NewsController extends BackController
       $comment = new Comment([
           'news' => $request->getData('news'),
           'auteur' => $request->postData('auteur'),
+          'email' => $request->postData('email'),
           'contenu' => $request->postData('contenu')
       ]);
     } else {
@@ -78,7 +79,7 @@ class NewsController extends BackController
     }
 
     $formBuilder = new CommentFormBuilder($comment);
-    $formBuilder->build($this->managers->getManagerOf('Members') , $this->app()->user()->member()->id());
+    $formBuilder->build($this->app()->user()->isAuthenticated(), $this->managers->getManagerOf('Members') , $this->app()->user()->isAuthenticated() ? $this->app()->user()->member()->id() : null);
  
     $form = $formBuilder->form();
 
@@ -180,7 +181,7 @@ class NewsController extends BackController
 
         $formBuilder = new CommentFormBuilder($comment);
 
-        $formBuilder->build($this->managers->getManagerOf('Members') , $this->app()->user()->member()->id());
+        $formBuilder->build(true,$this->managers->getManagerOf('Members') , $this->app()->user()->member()->id());
 
         $form = $formBuilder->form();
 

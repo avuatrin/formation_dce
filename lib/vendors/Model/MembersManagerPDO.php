@@ -7,11 +7,12 @@ class MembersManagerPDO extends MembersManager
 {
     protected function add(Member $member)
     {
-        $requete = $this->dao->prepare('INSERT INTO T_NEW_memberc SET NMC_pseudo = :pseudo, NMC_password = :password, NMC_philosophy = :philosophy, NMC_fk_NMY = :type ;');
+        $requete = $this->dao->prepare('INSERT INTO T_NEW_memberc SET NMC_pseudo = :pseudo, NMC_password = :password, NMC_philosophy = :philosophy, NMC_email = :email, NMC_fk_NMY = :type ;');
 
         $requete->bindValue(':pseudo', $member->pseudo());
         $requete->bindValue(':password', $member->password());
         $requete->bindValue(':philosophy', $member->philosophy());
+        $requete->bindValue(':email', $member->email());
         $requete->bindValue(':type', $member->type(), \PDO::PARAM_INT);
 
         $requete->execute();

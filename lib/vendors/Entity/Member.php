@@ -9,6 +9,7 @@ class Member extends Entity
         $pseudo,
         $password,
         $philosophy,
+        $email,
         $type;
 
     const TYPE_ADMINISTRATOR = 1;
@@ -45,6 +46,8 @@ class Member extends Entity
         $this->$type = (int) $type;
     }
 
+    public function setEmail($email) { $this->email = $email; }
+
     public function setId($id){ $this->id = (int) $id; }
 
     public function setPhilosophy( $philosophy){$this->philosophy = $philosophy; }
@@ -58,5 +61,7 @@ class Member extends Entity
     public function password(){  return $this->password;   }
 
     public function id(){ return $this->id; }
+
+    public function email() {  return $this->email;  }
 
 }
