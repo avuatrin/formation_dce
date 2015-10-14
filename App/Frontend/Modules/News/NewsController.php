@@ -79,7 +79,6 @@ class NewsController extends BackController
           $comment = new Comment;
       }
 
-
       if (!$this->managers->getManagerOf('News')->getUnique($request->getData($page))) {
           if ($request->method() == 'POST')
               $this->app()->user()->setFlash('La news a été supprimée pendant que vous la commentiez, désolé !');
@@ -122,7 +121,8 @@ class NewsController extends BackController
       $news = new News([
           'auteur' => $this->app()->user()->member()->id(),
           'titre' => $request->postData('titre'),
-          'contenu' => $request->postData('contenu')
+          'contenu' => $request->postData('contenu'),
+          'tags' => $request->postData('tags')
       ]);
 
       if ($request->getExists('id'))
@@ -155,7 +155,8 @@ class NewsController extends BackController
       $this->app->httpResponse()->redirect('/');
     }
 
-    $this->page->addVar('form', $form->createView());
+      $this->managers->getManagerOf('News')->saveTags($news);
+    $this->page->addVar('form', $form->createView() );
   }
 
   public function executeUpdateComment(HTTPRequest $request)
@@ -253,4 +254,60 @@ class NewsController extends BackController
 
         $this->app->httpResponse()->redirect('.');
     }
+
+  public function executeTestInsertComment(HTTPRequest $request)
+    {
+        if ($request->method() == 'POST') {
+            $comment = new Comment([
+                'news' => $request->getData('news'),
+                'auteur' => $request->postData('auteur'),
+                'email' => $request->postData('email'),
+                'contenu' => $request->postData('contenu')
+            ]);
+        } else {
+            $comment = new Comment;
+        }
+
+        if (!$this->managers->getManagerOf('News')->getUnique($request->getData('news'))) {
+            if ($request->method() == 'POST')
+                $this->app()->user()->setFlash('La news a été supprimée pendant que vous la commentiez, désolé !');
+            $this->app()->httpResponse()->redirect404();
+        }
+
+        $formBuilder = new CommentFormBuilder($comment);
+        $formBuilder->build($this->app()->user()->isAuthenticated(), $this->managers->getManagerOf('Members') , $this->app()->user()->isAuthenticated() ? $this->app()->user()->member()->id() : null);
+
+        $form = $formBuilder->form();
+
+        $formHandler = new FormHandler($form, $this->managers->getManagerOf('Comments'), $request);
+
+        echo json_encode($formHandler->processJSON());
+        exit();
+
+    }
+
+  public function executeTagShow(HTTPRequest $request) {
+      $nombreNews = $this->app->config()->get('nombre_news');
+      $nombreCaracteres = $this->app->config()->get('nombre_caracteres');
+
+      // On ajoute une définition pour le titre.
+      $this->page->addVar('title', 'Liste des news parlant de ' . $request->getData('tag'));
+
+      // On récupère le manager des news.
+      $manager = $this->managers->getManagerOf('News');
+
+      $listeNews = $manager->getListByTag($request->getData('tag'), 0, $nombreNews);
+
+      foreach ($listeNews as $news) {
+          if (strlen($news->contenu()) > $nombreCaracteres) {
+              $debut = substr($news->contenu(), 0, $nombreCaracteres);
+              $debut = substr($debut, 0, strrpos($debut, ' ')) . '...';
+
+              $news->setContenu($debut);
+          }
+      }
+
+      // On ajoute la variable $listeNews à la vue.
+      $this->page->addVar('listeNews', $listeNews);
+  }
 }

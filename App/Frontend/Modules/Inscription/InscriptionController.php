@@ -46,4 +46,18 @@ class InscriptionController extends BackController
         $this->page->addVar('title', 'Ajout d\'un membre');
     }
 
+    public function executeShow(HTTPRequest $request){
+
+        $memberManager = $this->managers->getManagerOf('Members');
+        /** @var $member Member        */
+        if(!$idMember = $memberManager->checkPseudoExist($request->getData('pseudo')))
+            $this->app->httpResponse()->redirect404();
+
+        $member = $memberManager->getUnique($idMember);
+
+        $this->page->addVar('member', $member);
+        $this->page->addVar('nbMessages', $this->managers->getManagerOf('Comments')->countByMember($idMember));
+        $this->page->addVar('nbNews', $this->managers->getManagerOf('News')->countByMember($idMember));
+    }
+
 }

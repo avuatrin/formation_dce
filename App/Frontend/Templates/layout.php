@@ -48,5 +48,7 @@
     
       <footer><?=$user->isAuthenticated() ? 'Connected as : '.$_SESSION['member']->pseudo() : 'Not connected';?></footer>
     </div>
+
+    <script type="text/javascript" src="/JS/scriptAffichageCommenter.js"></script>
   </body>
 </html>

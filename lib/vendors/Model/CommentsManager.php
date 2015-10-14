@@ -65,4 +65,10 @@ abstract class CommentsManager extends Manager
    * @return Comment
    */
   abstract public function get($id);
+
+  /** Retourne le nb de messages postés par un membre
+   * @param $member int id of member
+   * @return int
+   */
+  abstract public function countByMember($member);
 }

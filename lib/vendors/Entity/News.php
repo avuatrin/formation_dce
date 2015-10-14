@@ -9,7 +9,8 @@ class News extends Entity
             $titre,
             $contenu,
             $dateAjout,
-            $dateModif;
+            $dateModif,
+            $tags = [];
  
   const AUTEUR_INVALIDE = 1;
   const TITRE_INVALIDE = 2;
@@ -62,6 +63,19 @@ class News extends Entity
   {
     $this->dateModif = $dateModif;
   }
+
+  public function setTags($string){
+    if (is_string($string)) {
+      $this->tags = preg_split('/[\s,]+/',trim($string));
+    }
+  }
+
+
+  public function addTag($tag){
+    if (is_string($tag) && !empty($tag))  {
+        array_push($this->tags,  $tag);
+    }
+  }
  
   // GETTERS //
  
@@ -88,5 +102,17 @@ class News extends Entity
   public function dateModif()
   {
     return $this->dateModif;
+  }
+
+  public function tags(){
+    $tagString = '';
+    foreach($this->tags as $tag)
+      $tagString .= " ".$tag." ";
+    return $tagString;
+
+  }
+
+  public function tagsArray(){
+    return $this->tags;
   }
 }

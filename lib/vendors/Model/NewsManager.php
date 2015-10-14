@@ -25,6 +25,7 @@ abstract class NewsManager extends Manager
     if ($news->isValid())
     {
       $news->isNew() ? $this->add($news) : $this->modify($news);
+      $this->saveTags($news);
     }
     else
     {
@@ -67,4 +68,16 @@ abstract class NewsManager extends Manager
    * @return void
    */
   abstract protected function modify(News $news);
+
+  /** Retourne le nb de news postés par un membre
+   * @param $member int id of member
+   * @return int
+   */
+  abstract public function countByMember($member);
+
+  abstract public function saveTags(News $news);
+
+  abstract protected function deleteTags($id);
+
+  abstract public function getTags(News $news);
 }

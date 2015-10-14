@@ -40,4 +40,21 @@ CREATE TABLE IF NOT EXISTS T_NEW_membery (
   PRIMARY KEY(NMY_id)
 ) DEFAULT CHARSET=utf8 ;
 
-INSERT INTO `formation_dce`.`t_new_membery` (`NMY_id`, `NMY_name`) VALUES ('0', 'Administrator'), ('1', 'Author');
+CREATE TABLE IF NOT EXISTS T_NEW_tagc (
+  NTC_id INTEGER unsigned NOT NULL AUTO_INCREMENT,
+  NTC_name varchar(100) NOT NULL,
+  PRIMARY KEY(NTC_id)
+) DEFAULT CHARSET=utf8 ;
+
+CREATE TABLE IF NOT EXISTS T_NEW_tagd (
+  NTD_id INTEGER unsigned NOT NULL AUTO_INCREMENT,
+  NTD_fk_NNC INTEGER UNSIGNED NOT NULL,
+  NTD_fk_NTC INTEGER UNSIGNED NOT NULL,
+  PRIMARY KEY (NTD_id),
+  CONSTRAINT FK_NTD_fk_NNC FOREIGN KEY (NTD_fk_NNC)
+  	REFERENCES T_NEW_newsc (NNC_id),
+  CONSTRAINT FK_NTD_fk_NTC FOREIGN KEY (NTD_fk_NTC)
+    REFERENCES T_NEW_tagc (NTC_id)
+) DEFAULT CHARSET=utf8 ;
+
+INSERT INTO t_new_membery (NMY_id, NMY_name) VALUES ('0', 'Administrator'), ('1', 'Author');

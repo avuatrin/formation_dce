@@ -13,7 +13,6 @@ class CommentsManagerPDO extends CommentsManager
   }else
       $q = $this->dao->prepare('INSERT INTO T_NEW_commentc SET NCC_fk_NNC = :news, NCC_fk_NMC = :auteur, NCC_content = :contenu, NCC_date = NOW()');
 
-    var_dump( $q);
     $q->bindValue(':news', $comment->news(), \PDO::PARAM_INT);
     $q->bindValue(':auteur', $comment->auteur());
     $q->bindValue(':contenu', $comment->contenu());
@@ -40,7 +39,7 @@ class CommentsManagerPDO extends CommentsManager
       throw new \InvalidArgumentException('L\'identifiant de la news passé doit être un nombre entier valide');
     }
  
-    $q = $this->dao->prepare('SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id WHERE NCC_fk_NNC = :news');
+    $q = $this->dao->prepare('SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_email AS email, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id WHERE NCC_fk_NNC = :news ORDER BY NCC_date DESC');
     $q->bindValue(':news', $news, \PDO::PARAM_INT);
     $q->execute();
  
@@ -76,5 +75,10 @@ class CommentsManagerPDO extends CommentsManager
     $q->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, '\Entity\Comment');
  
     return $q->fetch();
+  }
+
+
+  public function countByMember($member){
+    return $this->dao->query('SELECT COUNT(*) FROM T_NEW_commentc WHERE NCC_fk_NMC = '.(int) $member)->fetchColumn();
   }
 }

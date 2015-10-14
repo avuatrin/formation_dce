@@ -20,6 +20,11 @@ abstract class Field
   }
   
   abstract public function buildWidget();
+
+
+  public function buildJSON(){
+    return array('value'=>$this->value,'error'=>$this->errorMessage);
+  }
   
   public function isValid()
   {
@@ -34,7 +39,7 @@ abstract class Field
     
     return true;
   }
-  
+
   public function label()
   {
     return $this->label;

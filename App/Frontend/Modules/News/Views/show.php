@@ -13,7 +13,13 @@
 <?php if ($news['dateAjout'] != $news['dateModif']) { ?>
   <p style="text-align: right;"><small><em>Modifiée le <?= $news['dateModif']->format('d/m/Y à H\hi') ?></em></small></p>
 <?php } ?>
-
+<br/>
+<p> <strong>TAGS </strong>
+<?php foreach($news->tagsArray() as $tag) {
+    echo " - <a href=/tag-".htmlspecialchars($tag).".html>".htmlspecialchars($tag)."</a>";
+}?>
+</p>
+<br/>
 <p id="displayComment" ><button  onclick="expand()" >Commenter</button></p>
 <div id="cache">
   <?php require 'insertComment.php';?>
@@ -32,7 +38,14 @@ foreach ($comments as $comment)
 ?>
 <fieldset>
   <legend>
-    Posté par <strong><?= htmlspecialchars($comment['auteur']) ?></strong> le <?= $comment['date']->format('d/m/Y à H\hi') ?>
+    Posté par
+    <?php if(!$comment['email']){?>
+        <a href="/member-<?= htmlspecialchars($comment['auteur'])?>.html"><?= htmlspecialchars($comment['auteur']) ?></a>
+    <?php }else{?>
+      <strong><?= htmlspecialchars($comment['auteur']) ." - " . htmlspecialchars($comment['email']); ?></strong>
+    <?php }?>
+
+    le <?= $comment['date']->format('d/m/Y à H\hi') ?>
       <?php if ($user->isAuthenticated() ) {
         if (($user->member()->type() == Entity\Member::TYPE_AUTHOR && $user->member()->pseudo() == $comment['auteur'])
         || ($user->member()->type() == Entity\Member::TYPE_ADMINISTRATOR)  ) { ?> -
@@ -47,4 +60,3 @@ foreach ($comments as $comment)
 ?>
  
 <p><a href="commenter-<?= $news['id'] ?>.html">Ajouter un commentaire</a></p>
-<script type="text/javascript" src="/JS/scriptAffichageCommenter.js"></script>

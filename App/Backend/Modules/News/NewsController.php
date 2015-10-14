@@ -110,14 +110,19 @@ class NewsController extends BackController
  
   public function processForm(HTTPRequest $request)
   {
+    if(!$this->app()->user()->isAuthenticated()){
+      $this->app->user()->setFlash('Connectez vous ou inscrivez vous pour accéder à cette section');
+      $this->app->httpResponse()->redirect('/');
+    }
     if ($request->method() == 'POST')
     {
       $news = new News([
-        'auteur' => $request->postData('auteur'),
-        'titre' => $request->postData('titre'),
-        'contenu' => $request->postData('contenu')
+          'auteur' => $this->app()->user()->member()->id(),
+          'titre' => $request->postData('titre'),
+          'contenu' => $request->postData('contenu'),
+          'tags' => $request->postData('tags')
       ]);
- 
+
       if ($request->getExists('id'))
       {
         $news->setId($request->getData('id'));
@@ -135,19 +140,20 @@ class NewsController extends BackController
     }
 
     $formBuilder = new NewsFormBuilder($news);
-    $formBuilder->build(true, $this->managers->getManagerOf('Members'), $this->app()->user()->isAuthenticated() ? $this->app()->user()->member()->id() : null);
- 
+    $formBuilder->build();
+
     $form = $formBuilder->form();
- 
+
     $formHandler = new FormHandler($form, $this->managers->getManagerOf('News'), $request);
- 
+
     if ($formHandler->process())
     {
       $this->app->user()->setFlash($news->isNew() ? 'La news a bien été ajoutée !' : 'La news a bien été modifiée !');
- 
-      $this->app->httpResponse()->redirect('/admin/');
+
+      $this->app->httpResponse()->redirect('/');
     }
- 
-    $this->page->addVar('form', $form->createView());
+
+    $this->managers->getManagerOf('News')->saveTags($news);
+    $this->page->addVar('form', $form->createView() );
   }
 }

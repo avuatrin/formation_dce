@@ -32,6 +32,20 @@ class Form
     
     return $view;
   }
+
+  public function createJSON(){
+
+    $JSON = [];
+
+    foreach ($this->fields as $field)
+    {
+      /** @var Field $field */
+      $field->isValid();
+      $JSON['form'][$field->name()]= $field->buildJSON();
+    }
+
+    return $JSON;
+  }
   
   public function isValid()
   {

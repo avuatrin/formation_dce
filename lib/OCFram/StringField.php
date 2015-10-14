@@ -8,7 +8,7 @@ class StringField extends Field
 
   public function buildWidget()
   {
-    $widget = '<label ';
+    $widget = '<label  name="' . $this->name.'"';
     if (!empty($this->errorMessage)) {
       $widget .= 'class="falseField"';
     }
@@ -30,8 +30,9 @@ class StringField extends Field
     $widget .= ' />';
 
     if (!empty($this->errorMessage)) {
-      $widget .= '<br />'.$this->errorMessage.'<br />';
-    }
+      $widget .= '<p name="error' . $this->name.'" class="errorMessage">'.$this->errorMessage.'</p>';
+    }else
+      $widget .= '<p name="error' . $this->name.'"></p>';
     return $widget;
   }
 

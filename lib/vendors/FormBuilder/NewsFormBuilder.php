@@ -39,6 +39,12 @@ class NewsFormBuilder extends FormBuilder
         'validators' => [
           new NotNullValidator('Merci de spécifier le contenu de la news'),
         ],
-       ]));
+       ]))->add(new TextField([
+              'label'=>'Tags',
+              'name'=>'tags',
+              'rows'=> 2,
+              'cols'=> 60,
+              'validators'=>[]
+      ]));
   }
 }
