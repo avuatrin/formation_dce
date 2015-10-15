@@ -1,3 +1,4 @@
+<p id="idNews"style="display: none;"><?=$news['id']?></p>
 <p>Par <em><?= $news['auteur'] ?></em>, le <?= $news['dateAjout']->format('d/m/Y à H\hi') ?>
   <?php if ($user->isAuthenticated() ) {
     if (($user->member()->type() == Entity\Member::TYPE_AUTHOR && $user->member()->pseudo() == $news['auteur'])
@@ -20,12 +21,13 @@
 }?>
 </p>
 <br/>
-<p id="displayComment" ><button  onclick="expand()" >Commenter</button></p>
-<div id="cache">
-  <?php require 'insertComment.php';?>
-</div>
- 
+<p id="newComments" ><button id="newComments" >Actualiser</button></p>
+<div id="showNewComments"></div>
+
+
 <?php
+
+
 if (empty($comments))
 {
 ?>
@@ -38,6 +40,7 @@ foreach ($comments as $comment)
 ?>
 <fieldset>
   <legend>
+    <p id ="idComment"  style="display: none;"><?=$comment['id']?></p>
     Posté par
     <?php if(!$comment['email']){?>
         <a href="/member-<?= htmlspecialchars($comment['auteur'])?>.html"><?= htmlspecialchars($comment['auteur']) ?></a>
@@ -58,5 +61,8 @@ foreach ($comments as $comment)
 <?php
 }
 ?>
- 
-<p><a href="commenter-<?= $news['id'] ?>.html">Ajouter un commentaire</a></p>
+
+<p id="displayComment"><button onclick="expand()" >Commenter</button></p>
+<div id="cache">
+  <?php require 'insertComment.php';?>
+</div>

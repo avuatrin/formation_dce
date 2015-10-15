@@ -312,29 +312,18 @@ class NewsController extends BackController
       $this->page->addVar('listeNews', $listeNews);
   }
 
-  public function executeGetNewComments(HTTPRequest $request){
-      $parameters = array('news_id'=>(int) $request->postData('news_id') ,'comment_id_last'=>(int)$request->postData('comment_id_last'));
-      $formBuilder = new NewCommentsFormBuilder( $parameters);
-      $formBuilder->build();
+  public function executeGetNewComments($request){
+      $news_id = (int) $request->postData('news_id');
+      $comment_last_id = (int) $request->postData('comment_last_id');
 
-      if($request->postData('comment_id_last')  && $request->postData('news_id') && $request->method() == 'POST') {
-          //$formBuilder->process((int) $request->postData('comment_id_last'), (int) $request->postData('news_id'));
-          echo json_encode(  $formBuilder->process($this->managers->getManagerOf('Comments'), 'getNewComments' )   );
+      if($request->postData('comment_last_id')  && $request->postData('news_id') && $request->method() == 'POST') {
+          $JSON['form'] =[];
+          foreach($this->managers->getManagerOf('Comments')->getNewComments($comment_last_id, $news_id) as $comment){
+              array_push($JSON['form'], array('comment'=>array('auteur'=>$comment->auteur(), 'contenu'=>$comment->contenu(), 'date'=>$comment->date(), 'id'=>$comment->id() ) ) );
+          }
+          echo json_encode( $JSON );
+
           die();
       }
-
-      /*$formHandler = new FormHandler($form, $this->managers->getManagerOf('News'), $request);
-
-      if ($formHandler->process())
-      {
-          $this->app->user()->setFlash($news->isNew() ? 'La news a bien été ajoutée !' : 'La news a bien été modifiée !');
-
-          $this->app->httpResponse()->redirect('/');
-      }
-
-      $this->managers->getManagerOf('News')->saveTags($news);
-*/
-      $this->page->addVar('form', $formBuilder->createView() );
-
   }
 }
