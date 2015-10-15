@@ -81,4 +81,21 @@ class CommentsManagerPDO extends CommentsManager
   public function countByMember($member){
     return $this->dao->query('SELECT COUNT(*) FROM T_NEW_commentc WHERE NCC_fk_NMC = '.(int) $member)->fetchColumn();
   }
+
+  public function getNewComments($idComment, $idNews){
+    $requete = $this->dao->prepare('SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_email AS email, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id INNER JOIN T_NEW_newsc ON NCC_fk_NNC = NNC_id WHERE NNC_id = :idNews AND NCC_date > (SELECT NCC_date FROM T_NEW_commentc WHERE NCC_id = :idComment)');
+    $requete->bindValue(':idComment', (int) $idComment, \PDO::PARAM_INT);
+    $requete->bindValue(':idNews', (int) $idNews, \PDO::PARAM_INT);
+    $requete->execute();
+
+    $requete->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, '\Entity\Comment');
+    $comments = $requete->fetchAll();
+
+    foreach ($comments as $comment)
+    {
+      $comment->setDate(new \DateTime($comment->date()));
+    }
+
+    return $comments;
+  }
 }

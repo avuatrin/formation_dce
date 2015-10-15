@@ -7,7 +7,7 @@
     <?php } } ?>
 
 </p>
-<h2><?= $news['titre'] ?></h2>
+<h2><?= htmlspecialchars($news['titre']) ?></h2>
 <p><?= nl2br(htmlspecialchars($news['contenu'])) ?></p>
  
 <?php if ($news['dateAjout'] != $news['dateModif']) { ?>

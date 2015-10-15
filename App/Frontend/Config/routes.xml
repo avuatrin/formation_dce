@@ -15,4 +15,6 @@
   <route url="/test-insert-comment-([0-9]+)\.html" module="News" action="testInsertComment" vars="news" />
   <route url="/member-([0-9A-Za-z]+)\.html" module="Inscription" action="show" vars="pseudo" />
   <route url="/tag-(.+)\.html" module="News" action="tagShow" vars="tag" />
+  <route url="/getNewComments\.html" module="News" action="getNewComments" />
+
 </routes>

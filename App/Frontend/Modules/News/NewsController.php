@@ -7,6 +7,7 @@ use \OCFram\HTTPRequest;
 use \Entity\Comment;
 use \Model\CommentsManager;
 use \FormBuilder\CommentFormBuilder;
+use \FormBuilder\NewCommentsFormBuilder;
 use \FormBuilder\NewsFormBuilder;
 use \OCFram\FormHandler;
 use \Model\NewsManager;
@@ -309,5 +310,31 @@ class NewsController extends BackController
 
       // On ajoute la variable $listeNews à la vue.
       $this->page->addVar('listeNews', $listeNews);
+  }
+
+  public function executeGetNewComments(HTTPRequest $request){
+      $parameters = array('news_id'=>(int) $request->postData('news_id') ,'comment_id_last'=>(int)$request->postData('comment_id_last'));
+      $formBuilder = new NewCommentsFormBuilder( $parameters);
+      $formBuilder->build();
+
+      if($request->postData('comment_id_last')  && $request->postData('news_id') && $request->method() == 'POST') {
+          //$formBuilder->process((int) $request->postData('comment_id_last'), (int) $request->postData('news_id'));
+          echo json_encode(  $formBuilder->process($this->managers->getManagerOf('Comments'), 'getNewComments' )   );
+          die();
+      }
+
+      /*$formHandler = new FormHandler($form, $this->managers->getManagerOf('News'), $request);
+
+      if ($formHandler->process())
+      {
+          $this->app->user()->setFlash($news->isNew() ? 'La news a bien été ajoutée !' : 'La news a bien été modifiée !');
+
+          $this->app->httpResponse()->redirect('/');
+      }
+
+      $this->managers->getManagerOf('News')->saveTags($news);
+*/
+      $this->page->addVar('form', $formBuilder->createView() );
+
   }
 }
