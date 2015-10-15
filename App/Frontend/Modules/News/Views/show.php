@@ -21,13 +21,10 @@
 }?>
 </p>
 <br/>
-<p id="newComments" ><button id="newComments" >Actualiser</button></p>
 <div id="showNewComments"></div>
 
 
 <?php
-
-
 if (empty($comments))
 {
 ?>
@@ -35,34 +32,37 @@ if (empty($comments))
 <?php
 }
  
-foreach ($comments as $comment)
-{
-?>
-<fieldset>
-  <legend>
-    <p id ="idComment"  style="display: none;"><?=$comment['id']?></p>
-    Posté par
-    <?php if(!$comment['email']){?>
-        <a href="/member-<?= htmlspecialchars($comment['auteur'])?>.html"><?= htmlspecialchars($comment['auteur']) ?></a>
-    <?php }else{?>
-      <strong><?= htmlspecialchars($comment['auteur']) ." - " . htmlspecialchars($comment['email']); ?></strong>
-    <?php }?>
+foreach ($comments as $comment) {
+  ?>
+  <fieldset class="comment">
+    <legend>
+      <p id="idComment" style="display: none;"><?= $comment['id'] ?></p>
+      Posté par
+      <?php if (!$comment['email']) { ?>
+        <a href="/member-<?= htmlspecialchars($comment['auteur']) ?>.html"><?= htmlspecialchars($comment['auteur']) ?></a>
+      <?php } else { ?>
+        <strong><?= htmlspecialchars($comment['auteur']) . " - " . htmlspecialchars($comment['email']); ?></strong>
+      <?php } ?>
 
-    le <?= $comment['date']->format('d/m/Y à H\hi') ?>
-      <?php if ($user->isAuthenticated() ) {
+      le <?= $comment['date']->format('d/m/Y à H\hi') ?>
+      <?php if ($user->isAuthenticated()) {
         if (($user->member()->type() == Entity\Member::TYPE_AUTHOR && $user->member()->pseudo() == $comment['auteur'])
-        || ($user->member()->type() == Entity\Member::TYPE_ADMINISTRATOR)  ) { ?> -
-          <a href="<?= $user->member()->type() == Entity\Member::TYPE_ADMINISTRATOR ? '/admin/' :''; ?>comment-update-<?= $comment['id'] ?>.html">Modifier</a> |
-          <a href="<?= $user->member()->type() == Entity\Member::TYPE_ADMINISTRATOR ? '/admin/' :''; ?>comment-delete-<?= $comment['id'] ?>.html">Supprimer</a>
-    <?php } } ?>
-  </legend>
-  <p><?= nl2br(htmlspecialchars($comment['contenu'])) ?></p>
-</fieldset>
-<?php
+            || ($user->member()->type() == Entity\Member::TYPE_ADMINISTRATOR)
+        ) { ?> -
+          <a href="<?= $user->member()->type() == Entity\Member::TYPE_ADMINISTRATOR ? '/admin/' : ''; ?>comment-update-<?= $comment['id'] ?>.html">Modifier</a> |
+          <a href="<?= $user->member()->type() == Entity\Member::TYPE_ADMINISTRATOR ? '/admin/' : ''; ?>comment-delete-<?= $comment['id'] ?>.html">Supprimer</a>
+        <?php }
+      } ?>
+    </legend>
+    <p><?= nl2br(htmlspecialchars($comment['contenu'])) ?></p>
+  </fieldset>
+  <?php
 }
 ?>
-
-<p id="displayComment"><button onclick="expand()" >Commenter</button></p>
+<p style="text-align:center;"><button id="buttonShowMoreComments">Voir tous les commentaires</button></p>
+<p style="text-align:center;" id="displayComment"><button onclick="expand()" >Commenter</button></p>
 <div id="cache">
   <?php require 'insertComment.php';?>
 </div>
+
+<script type="text/javascript" src="/JS/scriptAffichageCommenter.js"></script>
