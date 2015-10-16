@@ -38,8 +38,11 @@ class CommentsManagerPDO extends CommentsManager
     {
       throw new \InvalidArgumentException('L\'identifiant de la news passé doit être un nombre entier valide');
     }
-    $sql = 'SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_email AS email, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id WHERE NCC_fk_NNC = :news ORDER BY NCC_date DESC';
-
+    $sql = 'SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_email AS email, NCC_content AS contenu, NCC_date AS date
+            FROM T_NEW_commentc
+            LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id
+            WHERE NCC_fk_NNC = :news
+             ORDER BY NCC_date DESC';
     if ($debut != -1 || $limite != -1)
     {
       $sql .= ' LIMIT '.(int) $limite.' OFFSET '.(int) $debut;
@@ -89,23 +92,46 @@ class CommentsManagerPDO extends CommentsManager
     return $this->dao->query('SELECT COUNT(*) FROM T_NEW_commentc WHERE NCC_fk_NMC = '.(int) $member)->fetchColumn();
   }
 
-  public function getNewComments($idComment, $idNews, $before = true){
-    if ($before)
-      $q = 'SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_email AS email, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id INNER JOIN T_NEW_newsc ON NCC_fk_NNC = NNC_id WHERE NNC_id = :idNews AND NCC_date > (SELECT NCC_date FROM T_NEW_commentc WHERE NCC_id = :idComment) ORDER BY date ASC';
-    else
-      $q = 'SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_email AS email, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id INNER JOIN T_NEW_newsc ON NCC_fk_NNC = NNC_id WHERE NNC_id = :idNews AND NCC_date < (SELECT NCC_date FROM T_NEW_commentc WHERE NCC_id = :idComment) ORDER BY date DESC';
+  public function getOldComments($comment_old_id, $news_id, $numberCommentsToDisplay){
+    return $this->getCommentsUsingNewsIdAndCommentId(
+        '
+          SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, COALESCE( NMC_email, NCC_email) AS email, NCC_content AS contenu, NCC_date AS date
+          FROM T_NEW_commentc
+          LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id
+          WHERE NCC_fk_NNC = :id_news
+          AND NCC_id < :id_comment
+          ORDER BY NCC_id DESC
+          LIMIT '.(int) ($numberCommentsToDisplay + 1) .'
+        ',
+        $comment_old_id,
+        $news_id
+    );
+  }
 
-    $requete = $this->dao->prepare($q);
-    $requete->bindValue(':idComment', (int) $idComment, \PDO::PARAM_INT);
-    $requete->bindValue(':idNews', (int) $idNews, \PDO::PARAM_INT);
+  public function getNewComments($comment_new_id, $news_id){
+    return $this->getCommentsUsingNewsIdAndCommentId(
+        '
+          SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, COALESCE( NMC_email, NCC_email) AS email, NCC_content AS contenu, NCC_date AS date
+          FROM T_NEW_commentc
+          LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id
+          WHERE NCC_fk_NNC = :id_news
+          AND NCC_id > :id_comment
+          ORDER BY date DESC
+        ',
+        $comment_new_id,
+        $news_id);
+  }
+
+  private function getCommentsUsingNewsIdAndCommentId($sql, $id_comment, $id_news){
+    $requete = $this->dao->prepare($sql);
+    $requete->bindValue(':id_comment', (int) $id_comment, \PDO::PARAM_INT);
+    $requete->bindValue(':id_news', (int) $id_news, \PDO::PARAM_INT);
     $requete->execute();
-    //echo 'SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_email AS email, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id INNER JOIN T_NEW_newsc ON NCC_fk_NNC = NNC_id WHERE NNC_id = :'.$idNews.' AND NCC_date > (SELECT NCC_date FROM T_NEW_commentc WHERE NCC_id = '.$idComment.')';
 
     $requete->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, '\Entity\Comment');
     $comments = $requete->fetchAll();
 
-    foreach ($comments as $comment)
-    {
+    foreach ($comments as $comment) {
       $comment->setDate(new \DateTime($comment->date()));
     }
 

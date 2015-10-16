@@ -29,10 +29,9 @@
                         $("[name=error" + key + "]").html('');
                         $('label[name=' + key + ']').removeClass('falseField');
                     }
-                  })
+                  });
                 if (!hasErrors) {
-                    $('form').unbind('submit');
-                    $('form').trigger('submit');
+                    expand();
                 };
                 },"json"
             );

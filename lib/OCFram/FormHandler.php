@@ -27,8 +27,11 @@ class FormHandler
   }
 
   public function processJSON(){
-    if($this->request->method() == 'POST')
+    if($this->request->method() == 'POST') {
+      if($this->form->isValid())
+        $this->manager->save($this->form->entity());
       return $this->form->createJSON();
+    }
   }
 
   public function verify(){

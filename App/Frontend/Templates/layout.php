@@ -46,7 +46,10 @@
         </section>
       </div>
     
-      <footer><?=$user->isAuthenticated() ? 'Connected as : '.$_SESSION['member']->pseudo() : 'Not connected';?></footer>
+      <footer data-user-name="<?=$user->isAuthenticated() ? $_SESSION['member']->pseudo() : '';?>">
+        <?=$user->isAuthenticated() ? 'Connected as : '.$_SESSION['member']->pseudo() : 'Not connected';?>
+      </footer>
     </div>
   </body>
+  <script type="text/javascript" src="/JS/scriptAffichageCommenter.js"></script>
 </html>

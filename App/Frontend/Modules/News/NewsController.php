@@ -1,7 +1,6 @@
 <?php
 namespace App\Frontend\Modules\News;
- 
-use Entity\Member;
+
 use \OCFram\BackController;
 use \OCFram\HTTPRequest;
 use \Entity\Comment;
@@ -69,7 +68,6 @@ class NewsController extends BackController
     }
 
     public function processComment(HTTPRequest$request, $page){
-
 
       // Si le formulaire a été envoyé.
       if ($request->method() == 'POST') {
@@ -284,7 +282,6 @@ class NewsController extends BackController
         $form = $formBuilder->form();
 
         $formHandler = new FormHandler($form, $this->managers->getManagerOf('Comments'), $request);
-
         echo json_encode($formHandler->processJSON());
         exit();
 
@@ -315,25 +312,28 @@ class NewsController extends BackController
       $this->page->addVar('listeNews', $listeNews);
     }
 
-    public function executeGetJSONComments(HTTPRequest $request){
-        $news_id = (int) $request->postData('news_id');
-        $comment_last_id = $request->postData('comment_last_id') ?  (int)$request->postData('comment_last_id') : false;
-        $comment_old_id = $request->postData('comment_old_id') ? (int) $request->postData('comment_old_id') : false;
+    public function executeGetOldComments(HTTPRequest $request){
+        $this->processJSONComment(
+            $this->managers->getManagerOf('Comments')->getOldComments(
+                $request->postData('comment_old_id'),
+                $request->postData('news_id'),
+                $nombreCommentairesAffiche = $this->app->config()->get('nombre_commentaires')
+            )
+        );
+    }
 
-        if($news_id && $request->method() == 'POST' && ($comment_last_id || $comment_old_id )  ){
-            $JSON['form'] = [];
-            if($comment_last_id) {
-                $comment_id = $comment_last_id;
-                $before = true;
-            }else {
-                $comment_id = $comment_old_id;
-                $before = false;
-            }
-            foreach ($this->managers->getManagerOf('Comments')->getNewComments($comment_id, $news_id, $before) as $comment) {
-                array_push($JSON['form'], array('comment' => array('auteur' => $comment->auteur(), 'contenu' => $comment->contenu(), 'date' => $comment->date(), 'id' => $comment->id())));
-            }
-            echo json_encode($JSON);
-        }
+    public function executeGetNewComments(HTTPRequest $request){
+        $this->processJSONComment(
+            $this->managers->getManagerOf('Comments')->getNewComments(
+                $request->postData('comment_last_id'),
+                $request->postData('news_id')
+            )
+        );
+    }
+
+    private function processJSONComment($comments){
+        echo json_encode($comments);
         die();
     }
+
 }

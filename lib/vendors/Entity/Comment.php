@@ -1,9 +1,10 @@
 <?php
 namespace Entity;
  
+use JsonSerializable;
 use \OCFram\Entity;
  
-class Comment extends Entity
+class Comment extends Entity implements JsonSerializable
 {
   protected $news,
           $auteur,
@@ -77,5 +78,15 @@ class Comment extends Entity
   public function email()
   {
     return $this->email;
+  }
+
+  public function jsonSerialize() {
+    return array(
+        'id' => $this->id(),
+        'date' => $this->date()->format('d/m/Y à H\hi'),
+        'email' => $this->email(),
+        'auteur' => $this->auteur(),
+        'contenu' => $this->contenu(),
+    );
   }
 }
