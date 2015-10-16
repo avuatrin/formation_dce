@@ -32,14 +32,21 @@ class CommentsManagerPDO extends CommentsManager
     $this->dao->exec('DELETE FROM T_NEW_commentc WHERE NCC_fk_NNC = '.(int) $news);
   }
  
-  public function getListOf($news)
+  public function getListOf($news, $debut = -1, $limite = -1 )
   {
     if (!ctype_digit($news))
     {
       throw new \InvalidArgumentException('L\'identifiant de la news passé doit être un nombre entier valide');
     }
- 
-    $q = $this->dao->prepare('SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_email AS email, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id WHERE NCC_fk_NNC = :news ORDER BY NCC_date DESC');
+    $sql = 'SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_email AS email, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id WHERE NCC_fk_NNC = :news ORDER BY NCC_date DESC';
+
+    if ($debut != -1 || $limite != -1)
+    {
+      $sql .= ' LIMIT '.(int) $limite.' OFFSET '.(int) $debut;
+    }
+
+    $q = $this->dao->prepare($sql);
+
     $q->bindValue(':news', $news, \PDO::PARAM_INT);
     $q->execute();
  
@@ -82,8 +89,13 @@ class CommentsManagerPDO extends CommentsManager
     return $this->dao->query('SELECT COUNT(*) FROM T_NEW_commentc WHERE NCC_fk_NMC = '.(int) $member)->fetchColumn();
   }
 
-  public function getNewComments($idComment, $idNews){
-    $requete = $this->dao->prepare('SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_email AS email, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id INNER JOIN T_NEW_newsc ON NCC_fk_NNC = NNC_id WHERE NNC_id = :idNews AND NCC_date > (SELECT NCC_date FROM T_NEW_commentc WHERE NCC_id = :idComment) ORDER BY date DESC');
+  public function getNewComments($idComment, $idNews, $before = true){
+    if ($before)
+      $q = 'SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_email AS email, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id INNER JOIN T_NEW_newsc ON NCC_fk_NNC = NNC_id WHERE NNC_id = :idNews AND NCC_date > (SELECT NCC_date FROM T_NEW_commentc WHERE NCC_id = :idComment) ORDER BY date ASC';
+    else
+      $q = 'SELECT NCC_id AS id, NCC_fk_NNC AS news, COALESCE(NMC_pseudo, NCC_auteur) AS auteur, NCC_email AS email, NCC_content AS contenu, NCC_date AS date FROM T_NEW_commentc LEFT OUTER JOIN T_NEW_memberc ON NCC_fk_NMC = NMC_id INNER JOIN T_NEW_newsc ON NCC_fk_NNC = NNC_id WHERE NNC_id = :idNews AND NCC_date < (SELECT NCC_date FROM T_NEW_commentc WHERE NCC_id = :idComment) ORDER BY date DESC';
+
+    $requete = $this->dao->prepare($q);
     $requete->bindValue(':idComment', (int) $idComment, \PDO::PARAM_INT);
     $requete->bindValue(':idNews', (int) $idNews, \PDO::PARAM_INT);
     $requete->execute();

@@ -15,38 +15,39 @@ use \Entity\News;
  
 class NewsController extends BackController
 {
-  public function executeIndex(HTTPRequest $request)
-  {
+    public function executeIndex(HTTPRequest $request)
+    {
     $nombreNews = $this->app->config()->get('nombre_news');
 
     $nombreCaracteres = $this->app->config()->get('nombre_caracteres');
- 
+
     // On ajoute une définition pour le titre.
     $this->page->addVar('title', 'Liste des '.$nombreNews.' dernières news');
- 
+
     // On récupère le manager des news.
     $manager = $this->managers->getManagerOf('News');
- 
+
     $listeNews = $manager->getList(0, $nombreNews);
- 
+
     foreach ($listeNews as $news)
     {
       if (strlen($news->contenu()) > $nombreCaracteres)
       {
         $debut = substr($news->contenu(), 0, $nombreCaracteres);
         $debut = substr($debut, 0, strrpos($debut, ' ')) . '...';
- 
+
         $news->setContenu($debut);
       }
     }
- 
+
     // On ajoute la variable $listeNews à la vue.
     $this->page->addVar('listeNews', $listeNews);
-  }
- 
-  public function executeShow(HTTPRequest $request)
-  {
+    }
+
+    public function executeShow(HTTPRequest $request)
+    {
     $news = $this->managers->getManagerOf('News')->getUnique($request->getData('id'));
+    $nombreCommentaires = $this->app->config()->get('nombre_commentaires');
 
     if (empty($news))
     {
@@ -57,17 +58,19 @@ class NewsController extends BackController
 
     $this->page->addVar('title', $news->titre());
     $this->page->addVar('news', $news);
-    $this->page->addVar('comments', $this->managers->getManagerOf('Comments')->getListOf($news->id()));
-  }
- 
-  public function executeInsertComment(HTTPRequest $request)
-  {
+    $this->page->addVar('comments', $this->managers->getManagerOf('Comments')->getListOf($news->id(),0, $nombreCommentaires)  );
+    }
+
+    public function executeInsertComment(HTTPRequest $request)
+    {
     $this->processComment($request, 'news');
 
     $this->page->addVar('title', 'Ajout d\'un commentaire');
-  }
+    }
 
-  public function processComment(HTTPRequest$request, $page){
+    public function processComment(HTTPRequest$request, $page){
+
+
       // Si le formulaire a été envoyé.
       if ($request->method() == 'POST') {
           $comment = new Comment([
@@ -103,16 +106,16 @@ class NewsController extends BackController
       $this->page->addVar('comment', $comment);
       $this->page->addVar('newsId', $request->getData($page));
       $this->page->addVar('form', $form->createView());
-  }
+    }
 
-  public function executeUpdate(HTTPRequest $request){
+    public function executeUpdate(HTTPRequest $request){
     $this->processForm($request);
 
     $this->page->addVar('title', 'Ajout d\'une news');
-  }
+    }
 
-  public function processForm(HTTPRequest $request)
-  {
+    public function processForm(HTTPRequest $request)
+    {
     if(!$this->app()->user()->isAuthenticated()){
         $this->app->user()->setFlash('Connectez vous ou inscrivez vous pour accéder à cette section');
         $this->app->httpResponse()->redirect('/');
@@ -158,9 +161,9 @@ class NewsController extends BackController
 
       $this->managers->getManagerOf('News')->saveTags($news);
     $this->page->addVar('form', $form->createView() );
-  }
+    }
 
-  public function executeUpdateComment(HTTPRequest $request)
+    public function executeUpdateComment(HTTPRequest $request)
     {
         if(!$this->app()->user()->isAuthenticated()){
             $this->app->user()->setFlash('Connectez vous ou inscrivez vous pour accéder à cette section');
@@ -207,7 +210,7 @@ class NewsController extends BackController
         $this->page->addVar('form', $form->createView());
     }
 
-  public function executeDeleteComment(HTTPRequest $request)
+    public function executeDeleteComment(HTTPRequest $request)
     {
         if(!$this->app()->user()->isAuthenticated()){
             $this->app->user()->setFlash('Connectez vous ou inscrivez vous pour réaliser cette action');
@@ -225,14 +228,14 @@ class NewsController extends BackController
         $this->app->httpResponse()->redirect('.');
     }
 
-  public function executeInsert(HTTPRequest $request)
-{
+    public function executeInsert(HTTPRequest $request)
+    {
     $this->processForm($request);
 
     $this->page->addVar('title', 'Ajout d\'une news');
-}
+    }
 
-  public function executeDelete(HTTPRequest $request)
+    public function executeDelete(HTTPRequest $request)
     {
 
         /** @var NewsManager $NewsManager */
@@ -256,7 +259,7 @@ class NewsController extends BackController
         $this->app->httpResponse()->redirect('.');
     }
 
-  public function executeTestInsertComment(HTTPRequest $request)
+    public function executeTestInsertComment(HTTPRequest $request)
     {
         if ($request->method() == 'POST') {
             $comment = new Comment([
@@ -287,7 +290,7 @@ class NewsController extends BackController
 
     }
 
-  public function executeTagShow(HTTPRequest $request) {
+    public function executeTagShow(HTTPRequest $request) {
       $nombreNews = $this->app->config()->get('nombre_news');
       $nombreCaracteres = $this->app->config()->get('nombre_caracteres');
 
@@ -310,20 +313,27 @@ class NewsController extends BackController
 
       // On ajoute la variable $listeNews à la vue.
       $this->page->addVar('listeNews', $listeNews);
-  }
+    }
 
-  public function executeGetNewComments($request){
-      $news_id = (int) $request->postData('news_id');
-      $comment_last_id = (int) $request->postData('comment_last_id');
+    public function executeGetJSONComments(HTTPRequest $request){
+        $news_id = (int) $request->postData('news_id');
+        $comment_last_id = $request->postData('comment_last_id') ?  (int)$request->postData('comment_last_id') : false;
+        $comment_old_id = $request->postData('comment_old_id') ? (int) $request->postData('comment_old_id') : false;
 
-      if($request->postData('comment_last_id')  && $request->postData('news_id') && $request->method() == 'POST') {
-          $JSON['form'] =[];
-          foreach($this->managers->getManagerOf('Comments')->getNewComments($comment_last_id, $news_id) as $comment){
-              array_push($JSON['form'], array('comment'=>array('auteur'=>$comment->auteur(), 'contenu'=>$comment->contenu(), 'date'=>$comment->date(), 'id'=>$comment->id() ) ) );
-          }
-          echo json_encode( $JSON );
-
-          die();
-      }
-  }
+        if($news_id && $request->method() == 'POST' && ($comment_last_id || $comment_old_id )  ){
+            $JSON['form'] = [];
+            if($comment_last_id) {
+                $comment_id = $comment_last_id;
+                $before = true;
+            }else {
+                $comment_id = $comment_old_id;
+                $before = false;
+            }
+            foreach ($this->managers->getManagerOf('Comments')->getNewComments($comment_id, $news_id, $before) as $comment) {
+                array_push($JSON['form'], array('comment' => array('auteur' => $comment->auteur(), 'contenu' => $comment->contenu(), 'date' => $comment->date(), 'id' => $comment->id())));
+            }
+            echo json_encode($JSON);
+        }
+        die();
+    }
 }

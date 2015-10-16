@@ -59,6 +59,7 @@ foreach ($comments as $comment) {
   <?php
 }
 ?>
+<div id="showOldComments"></div>
 <p style="text-align:center;"><button id="buttonShowMoreComments">Voir tous les commentaires</button></p>
 <p style="text-align:center;" id="displayComment"><button onclick="expand()" >Commenter</button></p>
 <div id="cache">
