@@ -24,10 +24,19 @@ var _$showNewCommentDiv = null;
 var _$showOldCommentDiv = null;
 var _$button_show_more = null;
 var _$pseudo_user = null;
+var _$lock = false;
 
 function getLastComment() {
     _$last_comment = $('.comment:first');
     return _$last_comment.attr('data-id');
+}
+
+function lockIt() {
+    return _$lock = true;
+}
+
+function unlockIt() {
+    return _$lock = false;
 }
 
 function getDisplayedNewsId() {
@@ -83,41 +92,58 @@ function loadNewComments() {
 
 
 function loadMoreComments(url, parameters) {
-    $.post(url, parameters,
-        function (data) {
-            console.log(data);
-            $.each(data, function (key, value) {
-                if (key < 5) {
-                    var string2add = '<fieldset class="comment" data-id="' + value.id + '">' +
-                        '<legend>Poste par: <a href="/member-' + value.auteur + '.html">' + value.auteur + '</a> le ' + value.date;
-                        if(getPseudoUser() == value.auteur){
-                            string2add += ' - <a href="/comment-update'+ value.id +'.html" >Modifier</a>'+
-                                ' | <a href="/comment-delete'+ value.id +'.html" >Supprimer</a>';
+    if(!_$lock) {
+        lockIt();
+        $.post(url, parameters,
+            function (data) {
+                $.each(data, function (key, value) {
+                    if (key < 5) {
+
+                        var member = $('<a></a>').attr('href', '/member-' + value.auteur + '.html').html(value.auteur);
+
+                        if (getPseudoUser() == value.auteur) {
+                            var modifier = $('<a></a>').attr('href', '/comment-update-' + value.id + '.html').html(' - Modifier | ');
+                            var supprimer = $('<a></a>').attr('href', '/comment-delete' + value.id + '.html').html('Supprimer');
+                        } else{
+                            modifier = "";
+                            supprimer = "";
                         }
-                    string2add += '</legend>' +
-                            '<p>' + value.contenu + '</p>' +
-                            '</fieldset>';
-                    if (getLastComment() < value.id) { //on demande les nouveaux commentaires
-                        setTimeout( function() {
-                            getShowNewCommentDiv().prepend('', string2add)
+                        var content = $('<p></p>').html(value.contenu);
+
+                        var string2add = $('<fieldset></fieldset>').addClass('comment').attr('data-id',value.id).
+                            append( ($('<legend></legend>') ).
+                                        append('Posté par ',member).
+                                        append(' le '+value.date).
+                                        append(modifier).
+                                        append(supprimer) ,
+                                    (content) );
+
+
+                        if (getLastComment() < value.id) { //on demande les nouveaux commentaires
+                            setTimeout(function () {
+                                getShowNewCommentDiv().prepend('', string2add);
                             }, 100 * key);
-                    } else {
-                        setTimeout( function(){
-                            getShowOldCommentDiv().append('', string2add) }
-                            , 100*key )
+                        } else {
+                            setTimeout(function () {
+                                    getShowOldCommentDiv().append('', string2add);
+                                }
+                                , 100 * key)
                         }
                         getButtonShowMore().hide();
                     }
-                else
-                    getButtonShowMore().show();
-            });
-        }, "json"
-    );
+                    else
+                        getButtonShowMore().show();
+                });
+            }, "json"
+        );
+        unlockIt();
+    }
+
 }
 
 /*----------Appels au fonctions---------------*/
 
-//setInterval(loadNewComments, 4000);
+setInterval(loadNewComments, 4000);
 
 getButtonShowMore().click(function(){
         loadOldComments();

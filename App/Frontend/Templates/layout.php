@@ -18,24 +18,7 @@
       </header>
       
       <nav>
-
-        <ul>
-          <li><a href="/">Accueil</a></li>
-          <li><a href="/mobile-detect.html">Detection</a></li>
-          <?php if ($user->isAuthenticated() ) {
-            if ($user->member()->type() == Entity\Member::TYPE_AUTHOR) { ?>
-              <li><a href="/news-insert.html">Ecrire une news</a></li>
-              <li><a href="/deconnexion.html">Disconnection </a></li>
-            <?php } else if ($user->member()->type() == Entity\Member::TYPE_ADMINISTRATOR) { ?>
-              <li><a href="/admin/">Admin</a></li>
-              <li><a href="/admin/news-insert.html">Ajouter une news</a></li>
-              <li><a href="/deconnexion.html">Disconnection</a></li>
-            <?php }
-          }else { ?>
-            <li><a href="/connexion.html">Connection</a></li>
-            <li><a href="/inscription.html">Inscription</a> </li>
-          <?php } ?>
-        </ul>
+<?= isset($menu) ? $menu :  '<ul> <li><a href="/">Accueil</a></li></ul>'; ?>
       </nav>
       
       <div id="content-wrap">

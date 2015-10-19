@@ -45,4 +45,5 @@ class Page extends ApplicationComponent
  
     $this->contentFile = $contentFile;
   }
+
 }

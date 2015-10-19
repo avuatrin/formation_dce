@@ -6,14 +6,17 @@ use \OCFram\HTTPRequest;
 use \Entity\Comment;
 use \Model\CommentsManager;
 use \FormBuilder\CommentFormBuilder;
-use \FormBuilder\NewCommentsFormBuilder;
 use \FormBuilder\NewsFormBuilder;
 use \OCFram\FormHandler;
 use \Model\NewsManager;
 use \Entity\News;
+use \Entity\Member;
+use \App\MenuGenerator;
  
 class NewsController extends BackController
 {
+    use MenuGenerator;
+
     public function executeIndex(HTTPRequest $request)
     {
     $nombreNews = $this->app->config()->get('nombre_news');
@@ -22,6 +25,7 @@ class NewsController extends BackController
 
     // On ajoute une définition pour le titre.
     $this->page->addVar('title', 'Liste des '.$nombreNews.' dernières news');
+    $this->generateBasicMenu() ;
 
     // On récupère le manager des news.
     $manager = $this->managers->getManagerOf('News');
@@ -58,6 +62,7 @@ class NewsController extends BackController
     $this->page->addVar('title', $news->titre());
     $this->page->addVar('news', $news);
     $this->page->addVar('comments', $this->managers->getManagerOf('Comments')->getListOf($news->id(),0, $nombreCommentaires)  );
+    $this->generateBasicMenu() ;
     }
 
     public function executeInsertComment(HTTPRequest $request)
@@ -288,28 +293,29 @@ class NewsController extends BackController
     }
 
     public function executeTagShow(HTTPRequest $request) {
-      $nombreNews = $this->app->config()->get('nombre_news');
-      $nombreCaracteres = $this->app->config()->get('nombre_caracteres');
+    $nombreNews = $this->app->config()->get('nombre_news');
+    $nombreCaracteres = $this->app->config()->get('nombre_caracteres');
 
-      // On ajoute une définition pour le titre.
-      $this->page->addVar('title', 'Liste des news parlant de ' . $request->getData('tag'));
+    // On ajoute une définition pour le titre.
+    $this->page->addVar('title', 'Liste des news parlant de ' . $request->getData('tag'));
 
-      // On récupère le manager des news.
-      $manager = $this->managers->getManagerOf('News');
+    // On récupère le manager des news.
+    $manager = $this->managers->getManagerOf('News');
 
-      $listeNews = $manager->getListByTag($request->getData('tag'), 0, $nombreNews);
+    $listeNews = $manager->getListByTag($request->getData('tag'), 0, $nombreNews);
 
-      foreach ($listeNews as $news) {
-          if (strlen($news->contenu()) > $nombreCaracteres) {
-              $debut = substr($news->contenu(), 0, $nombreCaracteres);
-              $debut = substr($debut, 0, strrpos($debut, ' ')) . '...';
+    foreach ($listeNews as $news) {
+        if (strlen($news->contenu()) > $nombreCaracteres) {
+            $debut = substr($news->contenu(), 0, $nombreCaracteres);
+            $debut = substr($debut, 0, strrpos($debut, ' ')) . '...';
 
-              $news->setContenu($debut);
-          }
-      }
+            $news->setContenu($debut);
+        }
+    }
 
-      // On ajoute la variable $listeNews à la vue.
-      $this->page->addVar('listeNews', $listeNews);
+    // On ajoute la variable $listeNews à la vue.
+    $this->page->addVar('listeNews', $listeNews);
+    $this->generateBasicMenu() ;
     }
 
     public function executeGetOldComments(HTTPRequest $request){

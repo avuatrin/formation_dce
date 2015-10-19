@@ -38,7 +38,7 @@ class User extends ApplicationComponent
   }
 
     /**Connecte un utilisateur
-     * @param $member Member membre à connecter
+     * @param $member Member membre ï¿½ connecter
      */
   public function setAuthenticated($member = null)
   {
@@ -61,7 +61,10 @@ class User extends ApplicationComponent
   }
 
   /**
-   * @return Member membre connécté
+   * @return Member membre connï¿½ctï¿½
    */
-  public function member(){return $_SESSION['member']; }
+  public function member(){
+    if(isset ($_SESSION['member']))
+      return $_SESSION['member'];
+  }
 }

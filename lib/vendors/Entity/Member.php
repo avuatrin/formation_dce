@@ -14,6 +14,7 @@ class Member extends Entity
 
     const TYPE_ADMINISTRATOR = 1;
     const TYPE_AUTHOR = 2;
+    const NOT_CONNECTED = 0;
 
     const PASSWORD_INVALIDE = 12;
     const TYPE_INVALIDE = 13;
