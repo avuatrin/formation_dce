@@ -1,6 +1,6 @@
 <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 <h2>Ajouter un commentaire</h2>
-<form action="<?= 'commenter-'.$newsId.'.html'; ?>" method="post">
+<form action="<?= $this->app->router()->getUrl('insertComment', 'News', [$newsId]); ?>" method="post">
   <p>
     <?= $form ?>
     
@@ -15,7 +15,7 @@
             var auteur = $('input[name=auteur], select[name=auteur]').val();
             var email = $('input[name=email]').val();
             var contenu = $('textarea[name=contenu]').val();
-            $.post('/test-insert-comment-<?=$newsId?>.html', {auteur: auteur, email: email, contenu: contenu},
+            $.post('<?= $this->app->router()->getUrl('testInsertComment', 'News', [$newsId]) ?>', {auteur: auteur, email: email, contenu: contenu},
                 function (data) {
                     var hasErrors = false;
                   $.each(data.form,function(key,value) {
@@ -32,6 +32,7 @@
                   });
                 if (!hasErrors) {
                     expand();
+                    loadNewComments();
                 };
                 },"json"
             );

@@ -4,7 +4,12 @@ namespace OCFram;
 class Page extends ApplicationComponent
 {
   protected $contentFile;
+  protected $returnType;
   protected $vars = [];
+
+  const CONTENT_MAIL = 2;
+  const CONTENT_JSON = "JSON";
+  const CONTENT_HTML = "";
  
   public function addVar($var, $value)
   {
@@ -18,21 +23,19 @@ class Page extends ApplicationComponent
  
   public function getGeneratedPage()
   {
-    if (!file_exists($this->contentFile))
-    {
-      throw new \RuntimeException('La vue spécifiée n\'existe pas');
-    }
- 
-    $user = $this->app->user();
- 
     extract($this->vars);
- 
+
+    //récupération de la vue dans le cas ou l'on a du html à retourner
+    if(!file_exists($this->contentFile)) {
+        throw new \RuntimeException('La vue spécifiée n\'existe pas');
+    }else{
+        ob_start();
+        require $this->contentFile;
+        $content = ob_get_clean();
+    }
+
     ob_start();
-      require $this->contentFile;
-    $content = ob_get_clean();
- 
-    ob_start();
-      require __DIR__.'/../../App/'.$this->app->name().'/Templates/layout.php';
+      require __DIR__.'/../../App/'.$this->app->name().'/Templates/'.$this->returnType.'Layout.php';
     return ob_get_clean();
   }
  
@@ -44,6 +47,10 @@ class Page extends ApplicationComponent
     }
  
     $this->contentFile = $contentFile;
+  }
+
+  public function setReturnType($returnTypeConst){
+      $this->returnType = $returnTypeConst;
   }
 
 }

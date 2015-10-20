@@ -6,11 +6,11 @@ use \OCFram\HTTPRequest;
 use \OCFram\FormHandler;
 use \Entity\Member;
 use \FormBuilder\MemberFormBuilder;
-use \App\MenuGenerator;
+use \App\Frontend\AppController;
 
 class InscriptionController extends BackController
 {
-    use MenuGenerator;
+    use AppController;
 
     public function executeIndex(HTTPRequest $request)
     {
@@ -61,7 +61,7 @@ class InscriptionController extends BackController
         $this->page->addVar('member', $member);
         $this->page->addVar('nbMessages', $this->managers->getManagerOf('Comments')->countByMember($idMember));
         $this->page->addVar('nbNews', $this->managers->getManagerOf('News')->countByMember($idMember));
-        $this->generateBasicMenu() ;
+        $this->run() ;
     }
 
 }

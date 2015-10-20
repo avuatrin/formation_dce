@@ -2,11 +2,11 @@
 namespace App\Frontend\Modules\MobileDetect;
  
 use \OCFram\BackController;
-use \App\MenuGenerator;
+use \App\Frontend\AppController;
  
 class MobileDetectController extends BackController
 {
-  use MenuGenerator;
+  use AppController;
 
   public function executeIndex()
   {
@@ -23,6 +23,6 @@ class MobileDetectController extends BackController
     }
 
     $this->page->addVar('device', $device);
-    $this->generateBasicMenu() ;
+    $this->run() ;
   }
 }

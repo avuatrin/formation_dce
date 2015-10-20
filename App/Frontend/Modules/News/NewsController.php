@@ -10,22 +10,30 @@ use \FormBuilder\NewsFormBuilder;
 use \OCFram\FormHandler;
 use \Model\NewsManager;
 use \Entity\News;
+use \OCFram\Link;
+use \OCFram\Page;
+use \App\Frontend\AppController;
 use \Entity\Member;
-use \App\MenuGenerator;
  
 class NewsController extends BackController
 {
-    use MenuGenerator;
+    use AppController;
+
+    public function executeError(){
+        $this->run();
+        $this->page->addVar('title', 'Oups...');
+        $this->page->addVar('user', $this->app()->user());
+    }
 
     public function executeIndex(HTTPRequest $request)
     {
+    $this->run() ;
     $nombreNews = $this->app->config()->get('nombre_news');
 
     $nombreCaracteres = $this->app->config()->get('nombre_caracteres');
 
     // On ajoute une définition pour le titre.
     $this->page->addVar('title', 'Liste des '.$nombreNews.' dernières news');
-    $this->generateBasicMenu() ;
 
     // On récupère le manager des news.
     $manager = $this->managers->getManagerOf('News');
@@ -44,17 +52,20 @@ class NewsController extends BackController
     }
 
     // On ajoute la variable $listeNews à la vue.
+    $this->page()->addVar('user', $this->app()->user());
     $this->page->addVar('listeNews', $listeNews);
     }
 
     public function executeShow(HTTPRequest $request)
     {
+    $this->page()->addVar('user', $this->app()->user());
     $news = $this->managers->getManagerOf('News')->getUnique($request->getData('id'));
     $nombreCommentaires = $this->app->config()->get('nombre_commentaires');
 
     if (empty($news))
     {
-      $this->app->httpResponse()->redirect404();
+        $this->generateOtherPage('error', 'La news n°'.$request->getData('id').' n\'existe pas');
+        return;
     }
 
     $this->processComment($request, 'id');
@@ -62,7 +73,7 @@ class NewsController extends BackController
     $this->page->addVar('title', $news->titre());
     $this->page->addVar('news', $news);
     $this->page->addVar('comments', $this->managers->getManagerOf('Comments')->getListOf($news->id(),0, $nombreCommentaires)  );
-    $this->generateBasicMenu() ;
+    $this->run() ;
     }
 
     public function executeInsertComment(HTTPRequest $request)
@@ -89,7 +100,9 @@ class NewsController extends BackController
       if (!$this->managers->getManagerOf('News')->getUnique($request->getData($page))) {
           if ($request->method() == 'POST')
               $this->app()->user()->setFlash('La news a été supprimée pendant que vous la commentiez, désolé !');
-          $this->app()->httpResponse()->redirect404();
+          var_dump('yoko ono');
+          $this->generateOtherPage('error', 'Le commentaire n°'.$request->getData($page).' n\'existe pas');
+          return;
       }
 
       $formBuilder = new CommentFormBuilder($comment);
@@ -103,12 +116,13 @@ class NewsController extends BackController
       {
           $this->app->user()->setFlash('Le commentaire a bien été ajouté, merci !');
 
-          $this->app->httpResponse()->redirect('news-'.$request->getData($page).'.html');
+          $this->app->httpResponse()->redirect($this->app->router()->getUrl('show','News', [$request->getData($page)]) );
       }
 
-      $this->page->addVar('comment', $comment);
-      $this->page->addVar('newsId', $request->getData($page));
-      $this->page->addVar('form', $form->createView());
+        $this->page->addVar('comment', $comment);
+        $this->page->addVar('newsId', $request->getData($page));
+        $this->page->addVar('form', $form->createView());
+        $this->page()->addVar('user', $this->app()->user());
     }
 
     public function executeUpdate(HTTPRequest $request){
@@ -141,8 +155,10 @@ class NewsController extends BackController
       // L'identifiant de la news est transmis si on veut la modifier
       if ($request->getExists('id')) {
         $news = $this->managers->getManagerOf('News')->getUnique($request->getData('id'), true);
-        if($news == NULL)
-          $this->app()->httpResponse()->redirect404();
+        if($news == NULL) {
+            $this->generateOtherPage('error', 'La news n°' . $request->getData('id') . ' n\'existe pas');
+            return;
+        }
       } else {
         $news = new News;
       }
@@ -162,8 +178,9 @@ class NewsController extends BackController
       $this->app->httpResponse()->redirect('/');
     }
 
-      $this->managers->getManagerOf('News')->saveTags($news);
-    $this->page->addVar('form', $form->createView() );
+        $this->managers->getManagerOf('News')->saveTags($news);
+        $this->page->addVar('form', $form->createView() );
+        $this->page()->addVar('user', $this->app()->user());
     }
 
     public function executeUpdateComment(HTTPRequest $request)
@@ -186,8 +203,10 @@ class NewsController extends BackController
         else
         {
             $comment = $this->managers->getManagerOf('Comments')->get($request->getData('id'));
-            if($comment == NULL)
-                $this->app()->httpResponse()->redirect404();
+            if($comment == NULL) {
+                $this->generateOtherPage('error', 'Le commentaire n°'.$request->getData('id').' n\'existe pas');
+                return;
+            }
         }
 
         if($comment->auteur() != $this->app()->user()->member()->id()){
@@ -221,8 +240,10 @@ class NewsController extends BackController
         }
         /** @var CommentsManager $CommentManager */
         $CommentManager = $this->managers->getManagerOf('Comments');
-        if($request->getData('id') == NULL )
-            $this->app()->httpResponse()->redirect404();
+        if($request->getData('id') == NULL ) {
+            $this->generateOtherPage('error', 'Vous devez préciser un identifiant de commentaire');
+            return;
+        }
         if( $this->app()->user()->isAuthenticated() )
             $CommentManager->delete( $request->getData('id'), $this->app()->user()->member()->id() );
 
@@ -233,6 +254,24 @@ class NewsController extends BackController
 
     public function executeInsert(HTTPRequest $request)
     {
+    $this->setCustomMenu([new Link([
+        'name' => 'Donner des idées',
+        'uri' => 'http://www.wikipedia.com',
+        'access' => [
+            Member::TYPE_ADMINISTRATOR,
+            Member::NOT_CONNECTED,
+            Member::TYPE_AUTHOR,
+        ],
+    ]), (new Link([
+        'name' => 'Accueil',
+        'uri' => '/',
+        'access' => [
+            Member::TYPE_ADMINISTRATOR,
+            Member::NOT_CONNECTED,
+            Member::TYPE_AUTHOR,
+        ],
+    ]))]);
+    $this->run();
     $this->processForm($request);
 
     $this->page->addVar('title', 'Ajout d\'une news');
@@ -244,8 +283,10 @@ class NewsController extends BackController
         /** @var NewsManager $NewsManager */
         $NewsManager = $this->managers->getManagerOf('News');
         $News = $NewsManager->getUnique($request->getData('id'),false);
-        if ($News === null)
-            $this->app()->httpResponse()->redirect404();
+        if ($News === null) {
+            $this->generateOtherPage('error', 'Le commentaire n°' . $request->getData('id') . ' n\'existe pas');
+            return;
+        }
 
         if(!$this->app()->user()->isAuthenticated()){
             $this->app->user()->setFlash('Ce n\'est pas votre news');
@@ -278,7 +319,8 @@ class NewsController extends BackController
         if (!$this->managers->getManagerOf('News')->getUnique($request->getData('news'))) {
             if ($request->method() == 'POST')
                 $this->app()->user()->setFlash('La news a été supprimée pendant que vous la commentiez, désolé !');
-            $this->app()->httpResponse()->redirect404();
+            $this->generateOtherPage('error', 'La news n°'.$request->getData('news').' n\'existe pas');
+            return;
         }
 
         $formBuilder = new CommentFormBuilder($comment);
@@ -315,7 +357,7 @@ class NewsController extends BackController
 
     // On ajoute la variable $listeNews à la vue.
     $this->page->addVar('listeNews', $listeNews);
-    $this->generateBasicMenu() ;
+    $this->run() ;
     }
 
     public function executeGetOldComments(HTTPRequest $request){
@@ -337,9 +379,9 @@ class NewsController extends BackController
         );
     }
 
-    private function processJSONComment($comments){
-        echo json_encode($comments);
-        die();
+    protected function processJSONComment($comments){
+        $this->page()->setReturnType(Page::CONTENT_JSON);
+        $this->page()->addVar('json',json_encode($comments) );
     }
 
 }

@@ -14,11 +14,19 @@
     <div id="wrap">
       <header>
         <h1><a href="/">Mon super site</a></h1>
-        <p>Comment ça, il n'y a presque rien ?</p>
+        <p>Ca commence à se remplir !</p>
       </header>
       
       <nav>
-<?= isset($menu) ? $menu :  '<ul> <li><a href="/">Accueil</a></li></ul>'; ?>
+          <ul>
+            <?php if(isset($menu))
+                foreach($menu as $link){
+                  echo "<li> <a href='" . $link['uri'] . "'>" . $link['name'] . "</a></li>";
+                }
+            else
+              echo '<ul> <li><a href="" onclick="history.go(-1)">Retour</a></li></ul>';
+            ?>
+          </ul>
       </nav>
       
       <div id="content-wrap">
@@ -34,5 +42,5 @@
       </footer>
     </div>
   </body>
-  <script type="text/javascript" src="/JS/scriptAffichageCommenter.js"></script>
+  <?= isset($scripts) ? $scripts : '' ?>
 </html>

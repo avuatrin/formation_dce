@@ -3,11 +3,12 @@ namespace OCFram;
  
 abstract class Application
 {
-  protected $httpRequest;
-  protected $httpResponse;
-  protected $name;
-  protected $user;
-  protected $config;
+    protected $httpRequest;
+    protected $httpResponse;
+    protected $name;
+    protected $user;
+    protected $config;
+    protected $router;
  
   public function __construct()
   {
@@ -15,6 +16,7 @@ abstract class Application
     $this->httpResponse = new HTTPResponse($this);
     $this->user = new User($this);
     $this->config = new Config($this);
+    $this->router = new Router;
  
     $this->name = '';
   }
@@ -22,10 +24,10 @@ abstract class Application
   /**
    * @return BackController
    */
-   public function getController()
-  {
-    $router = new Router;
- 
+   public function getController(){
+
+    $router = $this->router;
+
     $xml = new \DOMDocument;
     $xml->load(__DIR__.'/../../App/'.$this->name.'/Config/routes.xml');
 
@@ -43,7 +45,7 @@ abstract class Application
       }
  
       // On ajoute la route au routeur.
-      $router->addRoute(new Route($route->getAttribute('url'), $route->getAttribute('module'), $route->getAttribute('action'), $vars));
+      $router->addRoute( $route->getAttribute('module'). ucfirst($route->getAttribute('action')), new Route($route->getAttribute('url'), $route->getAttribute('module'), $route->getAttribute('action'), $vars));
     }
     try
     {
@@ -94,4 +96,7 @@ abstract class Application
   {
     return $this->user;
   }
+
+  /** @return Router */
+  public function router(){ return $this->router; }
 }

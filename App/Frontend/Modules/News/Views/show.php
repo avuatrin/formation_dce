@@ -16,7 +16,7 @@
 <br/>
 <p> <strong>TAGS </strong>
 <?php foreach($news->tagsArray() as $tag) {
-    echo " - <a href=/tag-".htmlspecialchars($tag).".html>".htmlspecialchars($tag)."</a>";
+    echo " - <a href='". $this->app()->router()->getUrl('tagShow', 'News', [htmlspecialchars($tag)] )."'>".htmlspecialchars($tag)."</a>";
 }?>
 </p>
 <br/>

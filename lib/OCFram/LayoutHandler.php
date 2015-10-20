@@ -14,13 +14,18 @@ class LayoutHandler
     }
 
     public function createMenu(){
-        $menu = "<ul>";
+        $menu = [];
         foreach($this->links as $link){
             if(in_array($this->userStatus, $link->access())) {
-                $menu .= "<li> <a href='" . $link->uri() . "'>" . $link->name() . "</a></li>";
+                array_push($menu,
+                    array(
+                        'name' => $link->name(),
+                        'uri' => $link->uri(),
+                    )
+                );
             }
         }
-        return $menu ."</ul>";
+        return $menu;
     }
 
     public function add(Link $link){

@@ -143,7 +143,8 @@ function loadMoreComments(url, parameters) {
 
 /*----------Appels au fonctions---------------*/
 
-setInterval(loadNewComments, 4000);
+if(getDisplayedNewsId())
+    setInterval(loadNewComments, 4000);
 
 getButtonShowMore().click(function(){
         loadOldComments();

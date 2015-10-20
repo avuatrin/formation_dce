@@ -2,6 +2,7 @@
 namespace App\Frontend;
  
 use \OCFram\Application;
+use OCFram\BackController;
 
 class FrontendApplication extends Application
 {
@@ -13,10 +14,11 @@ class FrontendApplication extends Application
 
     public function run()
     {
+        /** @var BackController $controller */
         $controller = $this->getController();
         $controller->execute();
 
-        $this->httpResponse->setPage( $controller->page() );
+        $this->httpResponse->setPage($controller->page());
         $this->httpResponse->send();
     }
 }

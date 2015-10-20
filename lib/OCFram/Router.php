@@ -7,17 +7,17 @@ class Router
  
   const NO_ROUTE = 1;
  
-  public function addRoute(Route $route)
+  public function addRoute($moduleAction, Route $route)
   {
     if (!in_array($route, $this->routes))
     {
-      $this->routes[] = $route;
+      $this->routes[$moduleAction] = $route;
     }
   }
  
   public function getRoute($url)
   {
-    foreach ($this->routes as $route)
+    foreach ($this->routes as $key => $route)
     {
       // Si la route correspond à l'URL
       if (($varsValues = $route->match($url)) !== false)
@@ -35,7 +35,7 @@ class Router
             // La première valeur contient entièrement la chaine capturée (voir la doc sur preg_match)
             if ($key !== 0)
             {
-              $listVars[$varsNames[$key - 1]] = $match;
+              $listVars[$varsNames[$key - 1]] = urldecode($match);
             }
           }
  
@@ -49,4 +49,20 @@ class Router
  
     throw new \RuntimeException('Aucune route ne correspond à l\'URL', self::NO_ROUTE);
   }
+
+
+  public function getUrl($action, $module, $varsValue = null){
+    /** @var Route $route */
+    $route = $this->routes[$module.ucfirst($action)];
+    if(!$route)
+      return '/';
+    $url = $route->url();
+      if($varsValue)
+        foreach ($varsValue as $var) {
+            $url = preg_replace('/\([^)]*\)/', urlencode($var) , $url, 1);
+        }
+    return stripslashes($url);
+  }
+
+
 }

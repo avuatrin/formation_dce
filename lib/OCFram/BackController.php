@@ -8,7 +8,7 @@ abstract class BackController extends ApplicationComponent
   protected $page = null;
   protected $view = '';
   protected $managers = null;
- 
+
   public function __construct(Application $app, $module, $action)
   {
     parent::__construct($app);
@@ -69,5 +69,18 @@ abstract class BackController extends ApplicationComponent
  
     $this->page->setContentFile(__DIR__.'/../../App/'.$this->app->name().'/Modules/'.$this->module.'/Views/'.$this->view.'.php');
   }
+
+  protected function generateOtherPage($action, $message){
+    $this->page = new Page($this->app);
+
+    $this->setAction($action);
+    $this->setView($action);
+
+    if(isset($message)){
+      $this->app()->user()->setFlash($message);
+    }
+    $this->execute();
+  }
+
 
 }
